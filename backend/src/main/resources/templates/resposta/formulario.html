@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="~{index :: head}">
+    <meta charset="UTF-8">
+    <title>Formulário de Resposta</title>
+</head>
+<body>
+<div class="container">
+    <div th:insert="~{index :: menu}"></div>
+    <br/>
+    <form>
+        <input type="hidden" name="id" th:value="${respostaAlunoDTO.id}">
+
+        <div class="mb-3">
+            <label for="alunoId" class="form-label">Aluno</label>
+            <select class="form-control" id="alunoId" name="alunoId" required>
+                <option th:each="aluno : ${alunos}" th:value="${aluno.id}" th:text="${aluno.nome}"
+                        th:selected="${aluno.id} == ${respostaAlunoDTO.alunoId}"></option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="provaId" class="form-label">Prova</label>
+            <select class="form-control" id="provaId" name="provaId" required>
+                <option th:each="prova : ${provas}" th:value="${prova.id}" th:text="${prova.titulo}"
+                        th:selected="${prova.id} == ${respostaAlunoDTO.provaId}"></option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="resposta" class="form-label">Resposta</label>
+            <input type="text" class="form-control" id="resposta" name="resposta"
+                   th:value="${respostaAlunoDTO.resposta}" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="correta" class="form-label">Correta?</label>
+            <select class="form-control" id="correta" name="correta" required>
+                <option th:value="true" th:selected="${respostaAlunoDTO.correta} == true">Sim</option>
+                <option th:value="false" th:selected="${respostaAlunoDTO.correta} == false">Não</option>
+            </select>
+        </div>
+
+        <button class="btn btn-dark" formmethod="post" th:formaction="@{/resposta/salvar}" type="submit">Salvar</button>
+    </form>
+</div>
+<div th:insert="~{index :: script}"></div>
+</body>
+</html>

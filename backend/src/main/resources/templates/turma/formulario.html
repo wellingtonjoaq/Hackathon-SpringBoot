@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="~{index :: head}">
+    <meta charset="UTF-8">
+    <title>Formulário de Turma</title>
+</head>
+<body>
+<div class="container">
+    <div th:insert="~{index :: menu}"></div>
+    <br/>
+    <form>
+        <input type="hidden" name="id" th:value="${turmaDTO.id}">
+
+        <div class="mb-3">
+            <label for="nome" class="form-label">Nome da Turma</label>
+            <input type="text" class="form-control" id="nome" name="nome" th:value="${turmaDTO.nome}" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="periodo" class="form-label">Período</label>
+            <input type="text" class="form-control" id="periodo" name="periodo" th:value="${turmaDTO.periodo}" required>
+        </div>
+
+        <button class="btn btn-dark" formmethod="post" th:formaction="@{/turma/salvar}" type="submit">Salvar</button>
+    </form>
+</div>
+<div th:insert="~{index :: script}"></div>
+</body>
+</html>

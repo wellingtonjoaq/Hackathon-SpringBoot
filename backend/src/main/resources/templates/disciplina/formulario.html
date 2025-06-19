@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="~{index :: head}">
+    <meta charset="UTF-8">
+    <title>Formulário de Disciplina</title>
+</head>
+<body>
+<div class="container">
+    <div th:insert="~{index :: menu}"></div>
+    <br/>
+    <form>
+        <div class="mb-3">
+            <input hidden="true" name="id" th:value="${disciplinaDTO.id}" type="text">
+
+            <label class="form-label" for="nome">Nome da Disciplina</label>
+            <input class="form-control" id="nome" name="nome" th:value="${disciplinaDTO.nome}" type="text" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label" for="professorId">Professor Responsável</label>
+            <select class="form-control" id="professorId" name="professorId" required>
+                <option th:each="prof : ${professores}" th:value="${prof.id}" th:text="${prof.nome}"
+                        th:selected="${prof.id} == ${disciplinaDTO.professorId}"></option>
+            </select>
+        </div>
+
+        <button class="btn btn-dark" formmethod="post" th:formaction="@{/disciplina/salvar}" type="submit">Salvar</button>
+    </form>
+</div>
+<div th:insert="~{index :: script}"></div>
+</body>
+</html>
