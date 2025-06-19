@@ -1,19 +1,22 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:insert="~{index :: head}">
-    <meta charset="UTF-8">
-    <title>Lista de Usuários</title>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="index :: head">
+    <!-- Nada aqui pois o head será substituído pelo fragmento -->
 </head>
+
 <body>
-<div class="container">
-    <div th:insert="~{index :: menu}"></div>
-    <br/>
+
+<!-- Navbar/menu -->
+<div th:replace="index :: menu"></div>
+
+<div class="container mt-4">
+    <h2>Lista de Usuários</h2>
+
     <table class="table table-hover">
         <thead>
         <tr>
             <th>ID</th>
             <th>Nome</th>
-            <th>CPF</th>
             <th>E-mail</th>
             <th>Perfil</th>
             <th>Ações</th>
@@ -23,14 +26,16 @@
         <tr th:each="usuario : ${usuarios}">
             <td th:text="${usuario.id}">1</td>
             <td th:text="${usuario.nome}">João</td>
-            <td th:text="${usuario.cpf}">000.000.000-00</td>
             <td th:text="${usuario.email}">email@exemplo.com</td>
             <td th:text="${usuario.perfil}">ADMIN</td>
             <td>
                 <a th:href="@{'/usuario/editar/' + ${usuario.id}}" class="btn btn-outline-dark" title="Editar">
                     <i class="bi bi-pencil-square"></i>
                 </a>
-                <a th:href="@{'/usuario/remover/' + ${usuario.id}}" class="btn btn-outline-dark" title="Remover">
+                <a th:href="@{'/usuario/remover/' + ${usuario.id}}"
+                   class="btn btn-outline-dark"
+                   title="Remover"
+                   onclick="return confirm('Tem certeza que deseja remover este usuário?');">
                     <i class="bi bi-dash-square"></i>
                 </a>
             </td>
@@ -38,6 +43,9 @@
         </tbody>
     </table>
 </div>
-<div th:insert="~{index :: script}"></div>
+
+<!-- Scripts -->
+<div th:replace="index :: script"></div>
+
 </body>
 </html>

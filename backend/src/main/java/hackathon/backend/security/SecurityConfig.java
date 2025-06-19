@@ -38,9 +38,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/login", "/error").permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMINISTRADOR")
-                        .requestMatchers("/professor/**").hasRole("PROFESSOR")
-                        .requestMatchers("/aluno/**").hasRole("ALUNO")
+                        .requestMatchers("/usuario/**").permitAll() // <- permite acesso livre à tela de usuário
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
