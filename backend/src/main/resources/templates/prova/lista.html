@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="~{index :: head}">
+    <meta charset="UTF-8">
+    <title>Lista de Provas</title>
+</head>
+<body>
+<div class="container">
+    <div th:insert="~{index :: menu}"></div>
+    <br/>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Título</th>
+            <th>Turma</th>
+            <th>Disciplina</th>
+            <th>Ações</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="prova : ${provas}">
+            <td th:text="${prova.id}">1</td>
+            <td th:text="${prova.titulo}">Prova 1</td>
+            <td th:text="${prova.nomeTurma}">Turma A</td>
+            <td th:text="${prova.nomeDisciplina}">Matemática</td>
+            <td>
+                <a th:href="@{'/prova/editar/' + ${prova.id}}" class="btn btn-outline-dark" title="Editar">
+                    <i class="bi bi-pencil-square"></i>
+                </a>
+                <a th:href="@{'/prova/remover/' + ${prova.id}}" class="btn btn-outline-dark" title="Remover">
+                    <i class="bi bi-dash-square"></i>
+                </a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div th:insert="~{index :: script}"></div>
+</body>
+</html>

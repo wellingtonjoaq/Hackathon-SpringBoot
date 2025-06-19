@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="~{index :: head}">
+    <meta charset="UTF-8">
+    <title>Formulário de Prova</title>
+</head>
+<body>
+<div class="container">
+    <div th:insert="~{index :: menu}"></div>
+    <br/>
+    <form>
+        <input type="hidden" name="id" th:value="${provaDTO.id}">
+
+        <div class="mb-3">
+            <label for="titulo" class="form-label">Título da Prova</label>
+            <input class="form-control" id="titulo" name="titulo" type="text" th:value="${provaDTO.titulo}" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="turmaId" class="form-label">Turma</label>
+            <select class="form-control" id="turmaId" name="turmaId" required>
+                <option th:each="turma : ${turmas}" th:value="${turma.id}" th:text="${turma.nome}"
+                        th:selected="${turma.id} == ${provaDTO.turmaId}"></option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="disciplinaId" class="form-label">Disciplina</label>
+            <select class="form-control" id="disciplinaId" name="disciplinaId" required>
+                <option th:each="disc : ${disciplinas}" th:value="${disc.id}" th:text="${disc.nome}"
+                        th:selected="${disc.id} == ${provaDTO.disciplinaId}"></option>
+            </select>
+        </div>
+
+        <button class="btn btn-dark" formmethod="post" th:formaction="@{/prova/salvar}" type="submit">Salvar</button>
+    </form>
+</div>
+<div th:insert="~{index :: script}"></div>
+</body>
+</html>

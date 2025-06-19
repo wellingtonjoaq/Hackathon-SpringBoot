@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="~{index :: head}">
+    <meta charset="UTF-8">
+    <title>Lista de Respostas</title>
+</head>
+<body>
+<div class="container">
+    <div th:insert="~{index :: menu}"></div>
+    <br/>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Aluno</th>
+            <th>Prova</th>
+            <th>Resposta</th>
+            <th>Correta</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="resp : ${respostas}">
+            <td th:text="${resp.id}">1</td>
+            <td th:text="${resp.nomeAluno}">João</td>
+            <td th:text="${resp.nomeProva}">Prova 1</td>
+            <td th:text="${resp.resposta}">A</td>
+            <td>
+                <span th:text="${resp.correta} ? 'Sim' : 'Não'"></span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div th:insert="~{index :: script}"></div>
+</body>
+</html>

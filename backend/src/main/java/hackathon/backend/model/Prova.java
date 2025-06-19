@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Getter
@@ -34,4 +35,9 @@ public class Prova {
     @JoinColumn(name = "disciplina_id", nullable = false)
     @JsonBackReference
     private Disciplina disciplina;
+
+    @ElementCollection
+    @CollectionTable(name = "prova_gabarito", joinColumns = @JoinColumn(name = "prova_id"))
+    @Column(name = "resposta_correta")
+    private List<String> gabarito;
 }
