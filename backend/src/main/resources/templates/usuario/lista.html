@@ -1,50 +1,58 @@
 <!DOCTYPE html>
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="index :: head">
-    <!-- Nada aqui pois o head será substituído pelo fragmento -->
 </head>
 
 <body>
 
-<!-- Navbar/menu -->
 <div th:replace="index :: menu"></div>
 
-<div class="container mt-4">
-    <h2>Lista de Usuários</h2>
+<div class="container mt-5 pt-4">
 
-    <table class="table table-hover">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>E-mail</th>
-            <th>Perfil</th>
-            <th>Ações</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="usuario : ${usuarios}">
-            <td th:text="${usuario.id}">1</td>
-            <td th:text="${usuario.nome}">João</td>
-            <td th:text="${usuario.email}">email@exemplo.com</td>
-            <td th:text="${usuario.perfil}">ADMIN</td>
-            <td>
-                <a th:href="@{'/usuario/editar/' + ${usuario.id}}" class="btn btn-outline-dark" title="Editar">
-                    <i class="bi bi-pencil-square"></i>
-                </a>
-                <a th:href="@{'/usuario/remover/' + ${usuario.id}}"
-                   class="btn btn-outline-dark"
-                   title="Remover"
-                   onclick="return confirm('Tem certeza que deseja remover este usuário?');">
-                    <i class="bi bi-dash-square"></i>
-                </a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Lista de Usuários</h2>
+        <a th:href="@{/usuario}" class="btn btn-outline-dark">
+            ➕ Adicionar Usuário
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Perfil</th>
+                <th class="text-center">Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="usuario : ${usuarios}">
+                <td th:text="${usuario.id}">1</td>
+                <td th:text="${usuario.nome}">João</td>
+                <td th:text="${usuario.email}">email@exemplo.com</td>
+                <td th:text="${usuario.perfil}">ADMIN</td>
+                <td class="text-center">
+                    <a th:href="@{'/usuario/editar/' + ${usuario.id}}"
+                       class="btn btn-outline-dark btn-sm me-1"
+                       title="Editar">
+                        <i class="bi bi-pencil-square"></i>
+                    </a>
+                    <a th:href="@{'/usuario/remover/' + ${usuario.id}}"
+                       class="btn btn-outline-dark btn-sm"
+                       title="Remover"
+                       onclick="return confirm('Tem certeza que deseja remover este usuário?');">
+                        <i class="bi bi-dash-square"></i>
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
 </div>
 
-<!-- Scripts -->
 <div th:replace="index :: script"></div>
 
 </body>
