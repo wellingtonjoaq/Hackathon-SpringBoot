@@ -1,29 +1,49 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:insert="~{index :: head}">
-    <meta charset="UTF-8">
-    <title>Formulário de Turma</title>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="index :: head">
 </head>
+
 <body>
-<div class="container">
-    <div th:insert="~{index :: menu}"></div>
-    <br/>
-    <form>
-        <input type="hidden" name="id" th:value="${turmaDTO.id}">
+
+<div th:replace="index :: menu"></div>
+
+<div class="container mt-5 pt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Cadastro de Turmas</h2>
+        <a class="btn btn-outline-dark" th:href="@{/turma/listar}">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+    </div>
+
+    <form th:action="@{/turma/salvar}" th:object="${turma}" method="post">
+        <input type="hidden" name="id" th:value="${turmaDTO.id}" />
 
         <div class="mb-3">
-            <label for="nome" class="form-label">Nome da Turma</label>
-            <input type="text" class="form-control" id="nome" name="nome" th:value="${turmaDTO.nome}" required>
+            <label for="nome" class="form-label">Nome</label>
+            <input type="text" class="form-control" id="nome" name="nome" th:value="${turmaDTO.nome}" required />
         </div>
 
         <div class="mb-3">
             <label for="periodo" class="form-label">Período</label>
-            <input type="text" class="form-control" id="periodo" name="periodo" th:value="${turmaDTO.periodo}" required>
+            <input type="text" class="form-control" id="periodo" name="periodo" th:value="${turmaDTO.periodo}" required />
         </div>
 
-        <button class="btn btn-dark" formmethod="post" th:formaction="@{/turma/salvar}" type="submit">Salvar</button>
+        <div class="mb-4">
+            <label for="curso" class="form-label">Curso</label>
+            <input type="text" class="form-control" id="curso" name="curso" th:value="${turmaDTO.curso}" required />
+        </div>
+
+        <div class="d-grid">
+            <button type="submit" class="btn btn-dark">
+                Adicionar
+            </button>
+        </div>
     </form>
+
 </div>
-<div th:insert="~{index :: script}"></div>
+
+<div th:replace="index :: script"></div>
+
 </body>
 </html>

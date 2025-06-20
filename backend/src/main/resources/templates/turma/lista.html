@@ -1,39 +1,61 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head th:insert="~{index :: head}">
     <meta charset="UTF-8">
     <title>Lista de Turmas</title>
 </head>
+
 <body>
-<div class="container">
-    <div th:insert="~{index :: menu}"></div>
-    <br/>
-    <table class="table table-hover">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Período</th>
-            <th>Ações</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="turma : ${turmas}">
-            <td th:text="${turma.id}">1</td>
-            <td th:text="${turma.nome}">5º Informática</td>
-            <td th:text="${turma.periodo}">Noturno</td>
-            <td>
-                <a th:href="@{'/turma/editar/' + ${turma.id}}" class="btn btn-outline-dark" title="Editar">
-                    <i class="bi bi-pencil-square"></i>
-                </a>
-                <a th:href="@{'/turma/remover/' + ${turma.id}}" class="btn btn-outline-dark" title="Remover">
-                    <i class="bi bi-dash-square"></i>
-                </a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+
+<div th:insert="~{index :: menu}"></div>
+
+<div class="container mt-5 pt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Lista de Turmas</h2>
+        <a th:href="@{/turma}" class="btn btn-outline-dark">
+            ➕ Adicionar Turma
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Período</th>
+                <th>Curso</th>
+                <th class="text-center">Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="turma : ${turmas}">
+                <td th:text="${turma.id}">1</td>
+                <td th:text="${turma.nome}">5º Informática</td>
+                <td th:text="${turma.periodo}">Noturno</td>
+                <td th:text="${turma.curso}">Informática</td>
+                <td class="text-center">
+                    <a th:href="@{'/turma/editar/' + ${turma.id}}"
+                       class="btn btn-outline-dark btn-sm me-1"
+                       title="Editar">
+                        <i class="bi bi-pencil-square"></i>
+                    </a>
+                    <a th:href="@{'/turma/remover/' + ${turma.id}}"
+                       class="btn btn-outline-dark btn-sm"
+                       title="Remover"
+                       onclick="return confirm('Tem certeza que deseja remover esta turma?');">
+                        <i class="bi bi-dash-square"></i>
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
 </div>
+
 <div th:insert="~{index :: script}"></div>
+
 </body>
 </html>
