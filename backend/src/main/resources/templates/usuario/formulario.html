@@ -36,8 +36,18 @@
 
         <div class="mb-4">
             <label for="perfil" class="form-label">Perfil</label>
-            <select class="form-select" id="perfil" th:field="*{perfil}">
+            <select class="form-select" id="perfil" th:field="*{perfil}" onchange="mostrarTurma()">
                 <option th:each="p : ${perfis}" th:value="${p}" th:text="${p}">Perfil</option>
+            </select>
+        </div>
+
+        <div class="mb-4" id="turmaDiv" style="display: none;">
+            <label for="turmaId" class="form-label">Associar Turma</label>
+            <select class="form-select" id="turmaId" name="turmaId">
+                <option value="">Selecione uma turma</option>
+                <option th:each="turma : ${turmas}"
+                        th:value="${turma.id}"
+                        th:text="${turma.nome}">Turma</option>
             </select>
         </div>
 
@@ -51,6 +61,23 @@
 </div>
 
 <div th:replace="index :: script"></div>
+
+<script>
+    function mostrarTurma() {
+        const perfil = document.getElementById('perfil').value;
+        const turmaDiv = document.getElementById('turmaDiv');
+
+        if (perfil === 'ALUNO') {
+            turmaDiv.style.display = 'block';
+        } else {
+            turmaDiv.style.display = 'none';
+        }
+    }
+
+    window.onload = function() {
+        mostrarTurma();
+    };
+</script>
 
 </body>
 </html>
