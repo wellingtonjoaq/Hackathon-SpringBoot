@@ -4,14 +4,13 @@ import hackathon.backend.dto.UsuarioDTO;
 import hackathon.backend.exception.UnauthorizedException;
 import hackathon.backend.model.Usuario;
 import hackathon.backend.repository.UsuarioRepository;
-import hackathon.backend.exception.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*")  // Permite requisições de qualquer origem (teste; em produção, restringir)
 public class AuthController {
 
     @Autowired
@@ -22,11 +21,14 @@ public class AuthController {
 
     @PostMapping("/login")
     public UsuarioDTO login(@RequestBody UsuarioDTO loginDTO) {
+        // Busca usuário pelo email
         Usuario usuario = usuarioRepository.findByEmail(loginDTO.getEmail())
                 .orElseThrow(() -> new UnauthorizedException("Usuário ou senha inválidos"));
 
+        // Verifica senha com bcrypt
         if (passwordEncoder.matches(loginDTO.getSenha(), usuario.getSenha())) {
-            return new UsuarioDTO(usuario); // Retorna dados do usuário sem a senha
+            // Retorna DTO com dados do usuário (sem senha)
+            return new UsuarioDTO(usuario);
         } else {
             throw new UnauthorizedException("Usuário ou senha inválidos");
         }
