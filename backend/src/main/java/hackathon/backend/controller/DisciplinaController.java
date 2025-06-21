@@ -52,8 +52,18 @@ public class DisciplinaController {
     public String listar(Model model) {
         var disciplinas = disciplinaService.listarTodos()
                 .stream()
-                .map(d -> modelMapper.map(d, DisciplinaDTO.class))
+                .map(disc -> {
+                    DisciplinaDTO dto = modelMapper.map(disc, DisciplinaDTO.class);
+                    // Preencher nome do professor corretamente
+                    if (disc.getProfessor() != null) {
+                        dto.setNomeProfessor(disc.getProfessor().getNome());
+                    } else {
+                        dto.setNomeProfessor("Sem Professor");
+                    }
+                    return dto;
+                })
                 .collect(Collectors.toList());
+
         model.addAttribute("disciplinas", disciplinas);
         return "disciplina/lista";
     }
@@ -61,8 +71,14 @@ public class DisciplinaController {
     @GetMapping("editar/{id}")
     public String editar(@PathVariable Long id, Model model) {
         var disciplina = disciplinaService.buscarPorId(id);
-        model.addAttribute("disciplinaDTO", modelMapper.map(disciplina, DisciplinaDTO.class));
-        return iniciar(modelMapper.map(disciplina, DisciplinaDTO.class), model);
+        DisciplinaDTO dto = modelMapper.map(disciplina, DisciplinaDTO.class);
+
+        if (disciplina.getProfessor() != null) {
+            dto.setProfessorId(disciplina.getProfessor().getId());
+        }
+
+        model.addAttribute("disciplinaDTO", dto);
+        return iniciar(dto, model);
     }
 
     @GetMapping("remover/{id}")

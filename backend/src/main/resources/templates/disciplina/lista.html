@@ -1,39 +1,60 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head th:insert="~{index :: head}">
     <meta charset="UTF-8">
     <title>Lista de Disciplinas</title>
 </head>
+
 <body>
-<div class="container">
-    <div th:insert="~{index :: menu}"></div>
-    <br/>
-    <table class="table table-hover">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Professor</th>
-            <th>Ações</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="disc : ${disciplinas}">
-            <td th:text="${disc.id}">1</td>
-            <td th:text="${disc.nome}">Matemática</td>
-            <td th:text="${disc.nomeProfessor}">Prof. João</td>
-            <td>
-                <a th:href="@{'/disciplina/editar/' + ${disc.id}}" type="button" class="btn btn-outline-dark" title="Editar">
-                    <i class="bi bi-pencil-square"></i>
-                </a>
-                <a th:href="@{'/disciplina/remover/' + ${disc.id}}" type="button" class="btn btn-outline-dark" title="Remover">
-                    <i class="bi bi-dash-square"></i>
-                </a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+
+<!-- Navbar/Menu -->
+<div th:insert="~{index :: menu}"></div>
+
+<div class="container mt-5 pt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Lista de Disciplinas</h2>
+        <a th:href="@{/disciplina}" class="btn btn-outline-dark">
+            ➕ Adicionar Disciplina
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Professor</th>
+                <th class="text-center">Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="disc : ${disciplinas}">
+                <td th:text="${disc.id}">1</td>
+                <td th:text="${disc.nome}">Matemática</td>
+                <td th:text="${disc.nomeProfessor}">Prof. João</td>
+                <td class="text-center">
+                    <a th:href="@{'/disciplina/editar/' + ${disc.id}}"
+                       class="btn btn-outline-dark btn-sm me-1"
+                       title="Editar">
+                        <i class="bi bi-pencil-square"></i>
+                    </a>
+                    <a th:href="@{'/disciplina/remover/' + ${disc.id}}"
+                       class="btn btn-outline-dark btn-sm"
+                       title="Remover"
+                       onclick="return confirm('Tem certeza que deseja remover esta disciplina?');">
+                        <i class="bi bi-dash-square"></i>
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
 </div>
+
 <div th:insert="~{index :: script}"></div>
+
 </body>
 </html>
