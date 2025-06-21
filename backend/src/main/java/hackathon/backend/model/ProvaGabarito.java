@@ -3,32 +3,25 @@ package hackathon.backend.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
-
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class RespostaAluno {
+public class ProvaGabarito {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "aluno_id", nullable = false)
-    private Aluno aluno;
+    private Integer numeroQuestao;
+
+    private String respostaCorreta;
 
     @ManyToOne
     @JoinColumn(name = "prova_id", nullable = false)
     private Prova prova;
-
-    private double nota;
-
-    @OneToMany(mappedBy = "respostaAluno", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RespostaAlunoDetalhe> detalhes;
 }
 

@@ -21,23 +21,19 @@ public class Prova {
     @EqualsAndHashCode.Include
     private Long id;
 
-    @NotNull(message = "Informe a data da prova")
+    private String titulo;
+
+    @NotNull
     private LocalDate data;
 
-    @NotNull(message = "Informe a turma")
     @ManyToOne
     @JoinColumn(name = "turma_id", nullable = false)
-    @JsonBackReference
     private Turma turma;
 
-    @NotNull(message = "Informe a disciplina")
     @ManyToOne
     @JoinColumn(name = "disciplina_id", nullable = false)
-    @JsonBackReference
     private Disciplina disciplina;
 
-    @ElementCollection
-    @CollectionTable(name = "prova_gabarito", joinColumns = @JoinColumn(name = "prova_id"))
-    @Column(name = "resposta_correta")
-    private List<String> gabarito;
+    @OneToMany(mappedBy = "prova", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProvaGabarito> gabarito;
 }

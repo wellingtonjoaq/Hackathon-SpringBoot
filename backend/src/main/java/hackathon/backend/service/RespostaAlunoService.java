@@ -1,7 +1,9 @@
 package hackathon.backend.service;
 
 import hackathon.backend.model.Prova;
+import hackathon.backend.model.ProvaGabarito;
 import hackathon.backend.model.RespostaAluno;
+import hackathon.backend.model.RespostaAlunoDetalhe;
 import hackathon.backend.repository.ProvaRepository;
 import hackathon.backend.repository.RespostaAlunoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,19 +23,26 @@ public class RespostaAlunoService {
 
     @Transactional
     public void salvar(RespostaAluno resposta) {
-        Prova prova = provaRepository.findById(resposta.getProva().getId()).orElseThrow();
+        Prova prova = provaRepository.findById(resposta.getProva().getId())
+                .orElseThrow(() -> new RuntimeException("Prova não encontrada"));
 
-        int total = prova.getGabarito().size();
         int acertos = 0;
-        for (int i = 0; i < total; i++) {
-            if (i < resposta.getRespostas().size() &&
-                    resposta.getRespostas().get(i).equalsIgnoreCase(String.valueOf(prova.getGabarito().get(i)))) {
+
+        for (RespostaAlunoDetalhe detalhe : resposta.getDetalhes()) {
+            ProvaGabarito gabarito = prova.getGabarito().stream()
+                    .filter(g -> g.getNumeroQuestao() == detalhe.getNumeroQuestao())
+                    .findFirst()
+                    .orElse(null);
+
+            if (gabarito != null && detalhe.getResposta().equalsIgnoreCase(gabarito.getRespostaCorreta())) {
                 acertos++;
             }
         }
 
-        double nota = (double) acertos / total * 10.0;
+        int totalQuestoes = prova.getGabarito().size();
+        double nota = (double) acertos / totalQuestoes * 10.0;
         resposta.setNota(nota);
+
         repository.save(resposta);
     }
 

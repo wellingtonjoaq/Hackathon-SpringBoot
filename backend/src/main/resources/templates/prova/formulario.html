@@ -1,40 +1,145 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head th:insert="~{index :: head}">
     <meta charset="UTF-8">
-    <title>Formulário de Prova</title>
+    <title>Cadastro de Prova</title>
 </head>
+
 <body>
-<div class="container">
-    <div th:insert="~{index :: menu}"></div>
-    <br/>
-    <form>
-        <input type="hidden" name="id" th:value="${provaDTO.id}">
 
-        <div class="mb-3">
-            <label for="titulo" class="form-label">Título da Prova</label>
-            <input class="form-control" id="titulo" name="titulo" type="text" th:value="${provaDTO.titulo}" required>
+<div th:insert="~{index :: menu}"></div>
+
+<div class="container mt-5 pt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0" th:text="${provaDTO.id != null ? 'Editar Prova' : 'Cadastro de Prova'}">Cadastro de Prova</h2>
+        <a class="btn btn-outline-dark" th:href="@{/prova/listar}">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+    </div>
+
+    <div th:if="${errotitulo}" class="alert alert-danger" role="alert">
+        <h4 class="alert-heading" th:text="${errotitulo}"></h4>
+        <p th:text="${erro}"></p>
+    </div>
+
+    <form th:action="@{/prova/salvar}" method="post">
+
+        <input type="hidden" name="id" th:value="${provaDTO.id}"/>
+        <input type="hidden" id="action" name="action" value="salvar"/>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="titulo" class="form-label">Título da Prova</label>
+                <input type="text" class="form-control" id="titulo" name="titulo"
+                       th:value="${provaDTO.titulo}" required/>
+            </div>
+            <div class="col-md-6">
+                <label for="data" class="form-label">Data da Prova</label>
+                <input type="date" class="form-control" id="data" name="data"
+                       th:value="${provaDTO.data}" required/>
+            </div>
         </div>
 
-        <div class="mb-3">
-            <label for="turmaId" class="form-label">Turma</label>
-            <select class="form-control" id="turmaId" name="turmaId" required>
-                <option th:each="turma : ${turmas}" th:value="${turma.id}" th:text="${turma.nome}"
-                        th:selected="${turma.id} == ${provaDTO.turmaId}"></option>
-            </select>
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <label for="turmaId" class="form-label">Turma</label>
+                <select class="form-select" id="turmaId" name="turmaId" required>
+                    <option value="">Selecione uma turma</option>
+                    <option th:each="turma : ${turmas}"
+                            th:value="${turma.id}"
+                            th:text="${turma.nome}"
+                            th:selected="${turma.id} == ${provaDTO.turmaId}">
+                    </option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="disciplinaId" class="form-label">Disciplina</label>
+                <select class="form-select" id="disciplinaId" name="disciplinaId" required>
+                    <option value="">Selecione uma disciplina</option>
+                    <option th:each="disc : ${disciplinas}"
+                            th:value="${disc.id}"
+                            th:text="${disc.nome}"
+                            th:selected="${disc.id} == ${provaDTO.disciplinaId}">
+                    </option>
+                </select>
+            </div>
         </div>
 
-        <div class="mb-3">
-            <label for="disciplinaId" class="form-label">Disciplina</label>
-            <select class="form-control" id="disciplinaId" name="disciplinaId" required>
-                <option th:each="disc : ${disciplinas}" th:value="${disc.id}" th:text="${disc.nome}"
-                        th:selected="${disc.id} == ${provaDTO.disciplinaId}"></option>
-            </select>
+        <hr>
+
+        <div class="mb-4">
+            <h5 class="mb-3">Adicionar Questão</h5>
+            <div th:if="${erroQuestao}" class="alert alert-warning" role="alert">
+                <p th:text="${erroQuestao}"></p>
+            </div>
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <input type="number" class="form-control" name="novaQuestaoNumero" placeholder="Nº Questão" min="1">
+                </div>
+                <div class="col-md-5">
+                    <input type="text" class="form-control" name="novaQuestaoResposta" placeholder="Resposta Correta" maxlength="5">
+                </div>
+                <div class="col-md-4 d-grid">
+                    <button type="submit" class="btn btn-outline-dark" onclick="document.getElementById('action').value='adicionar';">
+                        <i class="bi bi-plus-circle"></i> Adicionar
+                    </button>
+                </div>
+            </div>
         </div>
 
-        <button class="btn btn-dark" formmethod="post" th:formaction="@{/prova/salvar}" type="submit">Salvar</button>
+        <hr>
+
+        <div class="mb-4">
+            <h5>Gabarito da Prova</h5>
+            <table class="table table-bordered">
+                <thead class="table-dark">
+                <tr>
+                    <th class="text-center">Questão</th>
+                    <th class="text-center">Resposta Correta</th>
+                    <th class="text-center">Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="g, stat : ${provaDTO.gabarito ?: {}}">
+                    <td class="text-center">
+                        <input type="number" class="form-control text-center"
+                               th:name="|gabarito[${stat.index}].numeroQuestao|"
+                               th:value="${g.numeroQuestao}" required readonly> </td>
+                    <td class="text-center">
+                        <input type="text" class="form-control text-center"
+                               th:name="|gabarito[${stat.index}].respostaCorreta|"
+                               th:value="${g.respostaCorreta}" maxlength="5" required>
+                    </td>
+                    <td class="text-center">
+                        <button type="submit" class="btn btn-danger"
+                                onclick="document.getElementById('action').value='remover'; document.getElementById('removeIndex').value=this.value;"
+                                th:value="${stat.index}" title="Remover Questão">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr th:if="${provaDTO.gabarito == null or #lists.isEmpty(provaDTO.gabarito)}">
+                    <td colspan="3" class="text-center text-muted">
+                        Nenhuma questão adicionada.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <input type="hidden" id="removeIndex" name="removeIndex" value="-1"/>
+
+        <div class="d-grid">
+            <button type="submit" class="btn btn-dark" onclick="document.getElementById('action').value='salvar';">
+                <i class="bi bi-save"></i> Salvar Prova
+            </button>
+        </div>
+
     </form>
+
 </div>
+
 <div th:insert="~{index :: script}"></div>
 </body>
 </html>
