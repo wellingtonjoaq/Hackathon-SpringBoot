@@ -1,25 +1,50 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head th:insert="~{index :: head}">
     <meta charset="UTF-8">
     <title>Formulário de Resposta do Aluno</title>
+    <style>
+        .resposta-correta {
+            color: green;
+            font-weight: bold;
+        }
+        .resposta-incorreta {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-<div class="container">
+<div class="container mt-5 pt-4">
     <div th:insert="~{index :: menu}"></div>
     <br/>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0" th:text="${respostaAlunoDTO.id != null ? 'Editar Resposta do Aluno' : 'Cadastro de Resposta do Aluno'}">Cadastro de Resposta do Aluno</h2>
+        <a class="btn btn-outline-dark" th:href="@{/resposta/listar}">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+    </div>
+
+    <div th:if="${errotitulo}" class="alert alert-danger" role="alert">
+        <h4 class="alert-heading" th:text="${errotitulo}"></h4>
+        <p th:text="${erro}"></p>
+    </div>
+
+    <div th:if="${erroQuestao}" class="alert alert-warning" role="alert">
+        <p th:text="${erroQuestao}"></p>
+    </div>
+
     <form th:action="@{/resposta/salvar}" th:object="${respostaAlunoDTO}" method="post">
         <input type="hidden" name="id" th:field="*{id}">
+        <input type="hidden" id="action" name="action" th:field="*{action}" value="salvar"/>
+        <input type="hidden" id="removeIndex" name="removeIndex" th:field="*{removeIndex}" value="-1"/>
 
-        <div class="mb-4">
+        <div class="mb-3">
             <label for="alunoId" class="form-label">Aluno</label>
-            <select class="form-select" id="alunoId" name="alunoId" required>
+            <select class="form-control" id="alunoId" th:field="*{alunoId}" required>
                 <option value="">Selecione um Aluno</option>
-                <option th:each="aluno : ${alunos}"
-                        th:value="${aluno.id}"
-                        th:text="${aluno.nome}"
-                        th:selected="${aluno.id} == ${respostaAlunoDTO.alunoId}">
-                </option>
+                <option th:each="aluno : ${alunos}" th:value="${aluno.id}" th:text="${aluno.nome}"></option>
             </select>
         </div>
 
@@ -31,92 +56,91 @@
             </select>
         </div>
 
-        <h4>Respostas das Questões</h4>
-        <div id="respostasContainer">
-            <div th:each="detalhe, stat : *{detalhes}" class="mb-3 border p-3 mt-2">
-                <h5>Questão <span th:text="${stat.index + 1}"></span></h5>
-                <input type="hidden" th:field="*{detalhes[__${stat.index}__].id}">
-                <div class="mb-3">
-                    <label th:for="${'detalhes' + stat.index + '.numeroQuestao'}" class="form-label">Número da Questão</label>
-                    <input type="number" class="form-control"
-                           th:field="*{detalhes[__${stat.index}__].numeroQuestao}" required>
+        <div th:if="${respostaAlunoDTO.id != null}" class="mb-3">
+            <label class="form-label">Nota Final:</label>
+            <p class="form-control-plaintext" th:text="${#numbers.formatDecimal(respostaAlunoDTO.nota, 0, 2)}"></p>
+        </div>
+
+        <hr>
+
+        <div class="mb-4">
+            <h5 class="mb-3">Repostas da Prova</h5>
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <input type="number" class="form-control" name="novaQuestaoNumero" th:field="*{novaQuestaoNumero}" placeholder="Nº Questão" min="1">
                 </div>
-                <div class="mb-3">
-                    <label th:for="${'detalhes' + stat.index + '.resposta'}" class="form-label">Resposta do Aluno</label>
-                    <input type="text" class="form-control"
-                           th:field="*{detalhes[__${stat.index}__].resposta}" required>
+                <div class="col-md-5">
+                    <input type="text" class="form-control" name="novaQuestaoResposta" th:field="*{novaQuestaoResposta}" placeholder="Resposta do Aluno" maxlength="5">
                 </div>
-                <button type="button" class="btn btn-danger btn-sm remove-resposta"
-                        th:attr="data-index=${stat.index}">Remover Questão</button>
+                <div class="col-md-4 d-grid">
+                    <button type="submit" class="btn btn-outline-dark" onclick="document.getElementById('action').value='adicionar';">
+                        <i class="bi bi-plus-circle"></i> Adicionar Questão
+                    </button>
+                </div>
             </div>
         </div>
 
-        <button type="button" class="btn btn-info mt-3" id="addQuestao">Adicionar Questão</button>
-        <button class="btn btn-dark mt-3" type="submit">Salvar Respostas</button>
+        <hr>
+
+        <div class="mb-4">
+            <h5>Respostas do Aluno</h5>
+            <table class="table table-bordered">
+                <thead class="table-dark">
+                <tr>
+                    <th class="text-center">Questão</th>
+                    <th class="text-center">Sua Resposta</th>
+                    <th class="text-center">Resposta Correta</th>
+                    <th class="text-center">Status</th>
+                    <th class="text-center">Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="detalhe, stat : *{detalhes}">
+                    <td class="text-center">
+                        <input type="hidden" th:name="|detalhes[${stat.index}].id|" th:value="${detalhe.id}">
+                        <input type="number" class="form-control text-center"
+                               th:name="|detalhes[${stat.index}].numeroQuestao|"
+                               th:value="${detalhe.numeroQuestao}" required readonly>
+                    </td>
+                    <td class="text-center">
+                        <input type="text" class="form-control text-center"
+                               th:name="|detalhes[${stat.index}].resposta|"
+                               th:value="${detalhe.resposta}" maxlength="5" required>
+                    </td>
+                    <td class="text-center">
+                        <span th:text="${detalhe.respostaCorreta}"></span>
+                    </td>
+                    <td class="text-center">
+                        <span th:if="${detalhe.correta}" class="resposta-correta">Certa <i class="bi bi-check-circle-fill"></i></span>
+                        <span th:unless="${detalhe.correta}" class="resposta-incorreta">Errada <i class="bi bi-x-circle-fill"></i></span>
+                    </td>
+                    <td class="text-center">
+                        <button type="submit" class="btn btn-danger"
+                                onclick="document.getElementById('action').value='remover'; document.getElementById('removeIndex').value=this.value;"
+                                th:value="${stat.index}" title="Remover Questão">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr th:if="${respostaAlunoDTO.detalhes == null or #lists.isEmpty(respostaAlunoDTO.detalhes)}">
+                    <td colspan="5" class="text-center text-muted">
+                        Nenhuma resposta adicionada.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-grid">
+            <button type="submit" class="btn btn-dark" onclick="document.getElementById('action').value='salvar';">
+                <i class="bi bi-save"></i> Salvar Respostas
+            </button>
+        </div>
+
     </form>
+
 </div>
 
 <div th:insert="~{index :: script}"></div>
-
-<script th:inline="javascript">
-    /*<![CDATA[*/
-    var proximaQuestaoIndex = /*[[${#lists.size(respostaAlunoDTO.detalhes)}]]*/ 0;
-
-    document.getElementById('addQuestao').addEventListener('click', function() {
-        var container = document.getElementById('respostasContainer');
-        var newDiv = document.createElement('div');
-        newDiv.className = 'mb-3 border p-3 mt-2';
-        newDiv.innerHTML = `
-            <h5>Questão <span>${proximaQuestaoIndex + 1}</span></h5>
-            <input type="hidden" name="detalhes[${proximaQuestaoIndex}].id" value="">
-            <div class="mb-3">
-                <label for="detalhes${proximaQuestaoIndex}numeroQuestao" class="form-label">Número da Questão</label>
-                <input type="number" class="form-control" id="detalhes${proximaQuestaoIndex}numeroQuestao"
-                       name="detalhes[${proximaQuestaoIndex}].numeroQuestao" required>
-            </div>
-            <div class="mb-3">
-                <label for="detalhes${proximaQuestaoIndex}resposta" class="form-label">Resposta do Aluno</label>
-                <input type="text" class="form-control" id="detalhes${proximaQuestaoIndex}resposta"
-                       name="detalhes[${proximaQuestaoIndex}].resposta" required>
-            </div>
-            <button type="button" class="btn btn-danger btn-sm remove-resposta" data-index="${proximaQuestaoIndex}">Remover Questão</button>
-        `;
-        container.appendChild(newDiv);
-        proximaQuestaoIndex++;
-        updateRemoveButtons();
-    });
-
-    function updateRemoveButtons() {
-        document.querySelectorAll('.remove-resposta').forEach(button => {
-            button.onclick = function() {
-                this.closest('.border.p-3.mt-2').remove();
-                reIndexInputs();
-            };
-        });
-    }
-
-    function reIndexInputs() {
-        var container = document.getElementById('respostasContainer');
-        var detailDivs = container.querySelectorAll('.border.p-3.mt-2');
-        proximaQuestaoIndex = 0;
-
-        detailDivs.forEach((div, index) => {
-            div.querySelector('h5 span').textContent = (index + 1);
-            div.querySelectorAll('input, select').forEach(input => {
-                var oldName = input.name;
-                var newName = `detalhes[${index}].` + oldName.substring(oldName.indexOf('.') + 1);
-                input.name = newName;
-                input.id = newName.replace(/\[|\]|\./g, '');
-            });
-            var removeButton = div.querySelector('.remove-resposta');
-            if (removeButton) {
-                removeButton.setAttribute('data-index', index);
-            }
-            proximaQuestaoIndex++;
-        });
-    }
-    updateRemoveButtons();
-    /*]]>*/
-</script>
 </body>
 </html>

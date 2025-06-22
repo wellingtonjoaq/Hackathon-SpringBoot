@@ -1,36 +1,50 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head th:insert="~{index :: head}">
     <meta charset="UTF-8">
-    <title>Lista de Respostas</title>
+    <title>Lista de Respostas de Alunos</title>
 </head>
 <body>
-<div class="container">
+<div class="container mt-5 pt-4">
     <div th:insert="~{index :: menu}"></div>
     <br/>
-    <table class="table table-hover">
-        <thead>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Respostas de Alunos</h2>
+        <a class="btn btn-outline-dark" th:href="@{/resposta}">
+            <i class="bi bi-plus-circle"></i> Nova Resposta
+        </a>
+    </div>
+
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
         <tr>
             <th>ID</th>
             <th>Aluno</th>
             <th>Prova</th>
-            <th>Resposta</th>
-            <th>Correta</th>
+            <th>Nota</th> <th>Ações</th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="resp : ${respostas}">
-            <td th:text="${resp.id}">1</td>
-            <td th:text="${resp.nomeAluno}">João</td>
-            <td th:text="${resp.nomeProva}">Prova 1</td>
-            <td th:text="${resp.resposta}">A</td>
-            <td>
-                <span th:text="${resp.correta} ? 'Sim' : 'Não'"></span>
-            </td>
+        <tr th:each="resposta : ${respostas}">
+            <td th:text="${resposta.id}"></td>
+            <td th:text="${resposta.alunoId}"></td> <td th:text="${resposta.provaId}"></td> <td th:text="${#numbers.formatDecimal(resposta.nota, 0, 2)}"></td> <td>
+            <a class="btn btn-sm btn-primary" th:href="@{/resposta/{id}(id=${resposta.id})}" title="Editar">
+                <i class="bi bi-pencil"></i>
+            </a>
+            <a class="btn btn-sm btn-danger" th:href="@{/resposta/remover/{id}(id=${resposta.id})}"
+               onclick="return confirm('Tem certeza que deseja remover esta resposta?');" title="Remover">
+                <i class="bi bi-trash"></i>
+            </a>
+        </td>
+        </tr>
+        <tr th:if="${respostas == null or #lists.isEmpty(respostas)}">
+            <td colspan="5" class="text-center text-muted">Nenhuma resposta de aluno encontrada.</td>
         </tr>
         </tbody>
     </table>
 </div>
+
 <div th:insert="~{index :: script}"></div>
 </body>
 </html>

@@ -1,8 +1,8 @@
 package hackathon.backend.controller;
 
 import hackathon.backend.dto.RespostaAlunoDTO;
+import hackathon.backend.dto.RespostaAlunoDetalheDTO;
 import hackathon.backend.model.Perfil;
-import hackathon.backend.service.AlunoService;
 import hackathon.backend.service.ProvaService;
 import hackathon.backend.service.RespostaAlunoService;
 import hackathon.backend.service.UsuarioService;
@@ -31,15 +31,22 @@ public class RespostaAlunoController {
     @Autowired
     private ModelMapper modelMapper;
 
-    @GetMapping()
-    public String iniciar(RespostaAlunoDTO respostaAlunoDTO, Model model) {
-        if (respostaAlunoDTO.getDetalhes() == null) {
-            respostaAlunoDTO.setDetalhes(new ArrayList<>());
+    @GetMapping({"", "/{id}"})
+    public String iniciar(@PathVariable(required = false) Long id, RespostaAlunoDTO respostaAlunoDTO, Model model) {
+        if (id != null) {
+
+            respostaAlunoDTO = respostaAlunoService.buscarPorId(id);
+        } else {
+            if (respostaAlunoDTO.getDetalhes() == null) {
+                respostaAlunoDTO.setDetalhes(new ArrayList<>());
+            }
         }
+
         var alunos = usuarioService.listarTodos()
                 .stream()
                 .filter(u -> u.getPerfil() == Perfil.ALUNO)
                 .collect(Collectors.toList());
+
         model.addAttribute("alunos", alunos);
         model.addAttribute("provas", provaService.listarTodos());
         model.addAttribute("respostaAlunoDTO", respostaAlunoDTO);
@@ -49,14 +56,58 @@ public class RespostaAlunoController {
     @PostMapping("salvar")
     public String salvar(@ModelAttribute RespostaAlunoDTO respostaAlunoDTO, Model model) {
         try {
-            respostaAlunoService.salvar(respostaAlunoDTO);
-            return "redirect:/resposta/listar";
+            if (respostaAlunoDTO.getDetalhes() == null) {
+                respostaAlunoDTO.setDetalhes(new ArrayList<>());
+            }
+
+            // Filtra apenas usuários com perfil ALUNO para o dropdown
+            var alunos = usuarioService.listarTodos()
+                    .stream()
+                    .filter(u -> u.getPerfil() == Perfil.ALUNO)
+                    .collect(Collectors.toList());
+
+            if ("adicionar".equals(respostaAlunoDTO.getAction())) {
+                if (respostaAlunoDTO.getNovaQuestaoNumero() != null && respostaAlunoDTO.getNovaQuestaoResposta() != null &&
+                        !respostaAlunoDTO.getNovaQuestaoResposta().trim().isEmpty()) {
+                    RespostaAlunoDetalheDTO novoDetalhe = new RespostaAlunoDetalheDTO();
+                    novoDetalhe.setNumeroQuestao(respostaAlunoDTO.getNovaQuestaoNumero());
+                    novoDetalhe.setResposta(respostaAlunoDTO.getNovaQuestaoResposta().trim());
+                    respostaAlunoDTO.getDetalhes().add(novoDetalhe);
+                    respostaAlunoDTO.setNovaQuestaoNumero(null);
+                    respostaAlunoDTO.setNovaQuestaoResposta(null);
+                } else {
+                    model.addAttribute("erroQuestao", "Número da Questão e Resposta são obrigatórios para adicionar.");
+                }
+            } else if ("remover".equals(respostaAlunoDTO.getAction())) {
+                if (respostaAlunoDTO.getRemoveIndex() != null && respostaAlunoDTO.getRemoveIndex() >= 0 &&
+                        respostaAlunoDTO.getRemoveIndex() < respostaAlunoDTO.getDetalhes().size()) {
+                    respostaAlunoDTO.getDetalhes().remove((int) respostaAlunoDTO.getRemoveIndex());
+                } else {
+                    model.addAttribute("erroQuestao", "Índice de remoção inválido.");
+                }
+            } else if ("salvar".equals(respostaAlunoDTO.getAction())) {
+                respostaAlunoService.salvar(respostaAlunoDTO);
+                return "redirect:/resposta/listar";
+            } else {
+                model.addAttribute("erro", "Ação inválida.");
+            }
+
+            model.addAttribute("alunos", alunos);
+            model.addAttribute("provas", provaService.listarTodos());
+            return "resposta/formulario";
+
         } catch (Exception e) {
             e.printStackTrace();
-            model.addAttribute("errotitulo", "Erro ao salvar respostas");
+            model.addAttribute("errotitulo", "Erro ao processar respostas");
             model.addAttribute("erro", e.getMessage());
-            model.addAttribute("alunos", usuarioService.listarTodos());
+
+            var alunosErro = usuarioService.listarTodos()
+                    .stream()
+                    .filter(u -> u.getPerfil() == Perfil.ALUNO)
+                    .collect(Collectors.toList());
+            model.addAttribute("alunos", alunosErro);
             model.addAttribute("provas", provaService.listarTodos());
+
             return "resposta/formulario";
         }
     }
@@ -69,5 +120,11 @@ public class RespostaAlunoController {
                 .collect(Collectors.toList());
         model.addAttribute("respostas", respostas);
         return "resposta/lista";
+    }
+
+    @GetMapping("remover/{id}")
+    public String remover(@PathVariable Long id) {
+        respostaAlunoService.deletarPorId(id);
+        return "redirect:/resposta/listar";
     }
 }

@@ -7,4 +7,6 @@ public class RespostaAlunoDetalheDTO {
     private Long id;
     private int numeroQuestao;
     private String resposta;
+    private String respostaCorreta;
+    private boolean correta;
 }
