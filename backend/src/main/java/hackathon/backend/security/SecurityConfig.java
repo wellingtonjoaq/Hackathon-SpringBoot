@@ -11,6 +11,11 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @Configuration
 public class SecurityConfig {
@@ -40,18 +45,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .cors().and()
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/login", "/error").permitAll()
-
                         .requestMatchers(
-                                "/usuario/**",
-                                "/turma/**",
-                                "/disciplina/**"
-                        ).hasRole("ADMINISTRADOR")
-                        .requestMatchers(
-                                "/prova/**"
-                        ).hasRole("PROFESSOR")
-
+                                "/css/**", "/js/**", "/images/**", "/login", "/error",
+                                "/api/login", // rota para login da API (Flutter)
+                                "/api/**"     // outras rotas da API públicas (ajuste conforme necessário)
+                        ).permitAll()
+                        .requestMatchers("/usuario/**", "/turma/**", "/disciplina/**").hasRole("ADMINISTRADOR")
+                        .requestMatchers("/prova/**").hasRole("PROFESSOR")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -64,7 +66,7 @@ public class SecurityConfig {
                         .logoutSuccessUrl("/login?logout")
                         .permitAll()
                 )
-                .csrf(csrf -> csrf.disable());
+                .csrf(csrf -> csrf.disable()); // CSRF desativado para uso com Flutter e APIs
 
         return http.build();
     }
@@ -72,5 +74,19 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
+    }
+
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOriginPatterns(Arrays.asList("*")); // Em produção, usar domínios específicos
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }

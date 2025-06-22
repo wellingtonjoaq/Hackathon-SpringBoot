@@ -23,6 +23,6 @@ public class UsuarioDTO {
         this.nome = usuario.getNome();
         this.email = usuario.getEmail();
         this.perfil = usuario.getPerfil();
-        // senha continua fora da resposta
+
     }
 }
