@@ -5,7 +5,7 @@ import hackathon.backend.dto.RespostaAlunoDetalheDTO;
 import hackathon.backend.model.*;
 import hackathon.backend.repository.ProvaRepository;
 import hackathon.backend.repository.RespostaAlunoRepository;
-import hackathon.backend.repository.UsuarioRepository;
+import hackathon.backend.repository.UsuarioRepository; // Importa UsuarioRepository
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -54,7 +54,7 @@ public class RespostaAlunoService {
         respostaAluno.setProva(prova);
 
         int acertos = 0;
-        List<RespostaAlunoDetalhe> detalhes = new ArrayList<>();
+
 
         for (RespostaAlunoDetalheDTO detalheDTO : dto.getDetalhes()) {
             String respostaCorreta = gabaritoMap.get(detalheDTO.getNumeroQuestao());
@@ -66,14 +66,16 @@ public class RespostaAlunoService {
             if (correta) acertos++;
 
             RespostaAlunoDetalhe detalhe = new RespostaAlunoDetalhe();
+
+            if (detalheDTO.getId() != null) {
+                detalhe.setId(detalheDTO.getId());
+            }
             detalhe.setNumeroQuestao(detalheDTO.getNumeroQuestao());
             detalhe.setResposta(detalheDTO.getResposta());
             detalhe.setRespostaAluno(respostaAluno);
 
-            detalhes.add(detalhe);
+            respostaAluno.getDetalhes().add(detalhe);
         }
-
-        respostaAluno.setDetalhes(detalhes);
 
         int totalQuestoes = prova.getGabarito().size();
         double nota = totalQuestoes > 0 ? (acertos / (double) totalQuestoes) * 10.0 : 0.0;
