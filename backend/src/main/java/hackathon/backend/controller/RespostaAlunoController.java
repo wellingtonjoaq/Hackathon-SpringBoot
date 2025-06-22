@@ -13,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Controller
@@ -34,7 +35,6 @@ public class RespostaAlunoController {
     @GetMapping({"", "/{id}"})
     public String iniciar(@PathVariable(required = false) Long id, RespostaAlunoDTO respostaAlunoDTO, Model model) {
         if (id != null) {
-
             respostaAlunoDTO = respostaAlunoService.buscarPorId(id);
         } else {
             if (respostaAlunoDTO.getDetalhes() == null) {
@@ -60,26 +60,29 @@ public class RespostaAlunoController {
                 respostaAlunoDTO.setDetalhes(new ArrayList<>());
             }
 
-            // Filtra apenas usuários com perfil ALUNO para o dropdown
             var alunos = usuarioService.listarTodos()
                     .stream()
                     .filter(u -> u.getPerfil() == Perfil.ALUNO)
                     .collect(Collectors.toList());
 
             if ("adicionar".equals(respostaAlunoDTO.getAction())) {
-                if (respostaAlunoDTO.getNovaQuestaoNumero() != null && respostaAlunoDTO.getNovaQuestaoResposta() != null &&
+                if (respostaAlunoDTO.getNovaQuestaoNumero() != null &&
+                        respostaAlunoDTO.getNovaQuestaoResposta() != null &&
                         !respostaAlunoDTO.getNovaQuestaoResposta().trim().isEmpty()) {
+
                     RespostaAlunoDetalheDTO novoDetalhe = new RespostaAlunoDetalheDTO();
                     novoDetalhe.setNumeroQuestao(respostaAlunoDTO.getNovaQuestaoNumero());
                     novoDetalhe.setResposta(respostaAlunoDTO.getNovaQuestaoResposta().trim());
                     respostaAlunoDTO.getDetalhes().add(novoDetalhe);
+
                     respostaAlunoDTO.setNovaQuestaoNumero(null);
                     respostaAlunoDTO.setNovaQuestaoResposta(null);
                 } else {
                     model.addAttribute("erroQuestao", "Número da Questão e Resposta são obrigatórios para adicionar.");
                 }
             } else if ("remover".equals(respostaAlunoDTO.getAction())) {
-                if (respostaAlunoDTO.getRemoveIndex() != null && respostaAlunoDTO.getRemoveIndex() >= 0 &&
+                if (respostaAlunoDTO.getRemoveIndex() != null &&
+                        respostaAlunoDTO.getRemoveIndex() >= 0 &&
                         respostaAlunoDTO.getRemoveIndex() < respostaAlunoDTO.getDetalhes().size()) {
                     respostaAlunoDTO.getDetalhes().remove((int) respostaAlunoDTO.getRemoveIndex());
                 } else {
@@ -90,6 +93,22 @@ public class RespostaAlunoController {
                 return "redirect:/resposta/listar";
             } else {
                 model.addAttribute("erro", "Ação inválida.");
+            }
+
+            if (respostaAlunoDTO.getProvaId() != null) {
+                var gabarito = provaService.buscarPorId(respostaAlunoDTO.getProvaId()).getGabarito();
+                Map<Integer, String> gabaritoMap = gabarito.stream()
+                        .collect(Collectors.toMap(g -> g.getNumeroQuestao(), g -> g.getRespostaCorreta()));
+
+                for (RespostaAlunoDetalheDTO detalhe : respostaAlunoDTO.getDetalhes()) {
+                    String respostaCorreta = gabaritoMap.get(detalhe.getNumeroQuestao());
+                    detalhe.setRespostaCorreta(respostaCorreta);
+                    if (respostaCorreta != null && detalhe.getResposta() != null) {
+                        detalhe.setCorreta(detalhe.getResposta().trim().equalsIgnoreCase(respostaCorreta.trim()));
+                    } else {
+                        detalhe.setCorreta(false);
+                    }
+                }
             }
 
             model.addAttribute("alunos", alunos);
