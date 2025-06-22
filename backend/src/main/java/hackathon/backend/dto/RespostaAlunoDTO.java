@@ -9,6 +9,6 @@ public class RespostaAlunoDTO {
     private Long id;
     private Long alunoId;
     private Long provaId;
-    private List<String> respostas;
+    private List<RespostaAlunoDetalheDTO> detalhes;
     private Double nota;
 }

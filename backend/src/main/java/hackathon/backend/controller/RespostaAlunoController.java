@@ -1,15 +1,18 @@
 package hackathon.backend.controller;
 
 import hackathon.backend.dto.RespostaAlunoDTO;
+import hackathon.backend.model.Perfil;
 import hackathon.backend.service.AlunoService;
 import hackathon.backend.service.ProvaService;
 import hackathon.backend.service.RespostaAlunoService;
+import hackathon.backend.service.UsuarioService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 @Controller
@@ -20,7 +23,7 @@ public class RespostaAlunoController {
     private RespostaAlunoService respostaAlunoService;
 
     @Autowired
-    private AlunoService alunoService;
+    private UsuarioService usuarioService;
 
     @Autowired
     private ProvaService provaService;
@@ -30,7 +33,14 @@ public class RespostaAlunoController {
 
     @GetMapping()
     public String iniciar(RespostaAlunoDTO respostaAlunoDTO, Model model) {
-        model.addAttribute("alunos", alunoService.listarTodos());
+        if (respostaAlunoDTO.getDetalhes() == null) {
+            respostaAlunoDTO.setDetalhes(new ArrayList<>());
+        }
+        var alunos = usuarioService.listarTodos()
+                .stream()
+                .filter(u -> u.getPerfil() == Perfil.ALUNO)
+                .collect(Collectors.toList());
+        model.addAttribute("alunos", alunos);
         model.addAttribute("provas", provaService.listarTodos());
         model.addAttribute("respostaAlunoDTO", respostaAlunoDTO);
         return "resposta/formulario";
@@ -39,12 +49,15 @@ public class RespostaAlunoController {
     @PostMapping("salvar")
     public String salvar(@ModelAttribute RespostaAlunoDTO respostaAlunoDTO, Model model) {
         try {
-            respostaAlunoService.salvar(modelMapper.map(respostaAlunoDTO, hackathon.backend.model.RespostaAluno.class));
+            respostaAlunoService.salvar(respostaAlunoDTO);
             return "redirect:/resposta/listar";
         } catch (Exception e) {
+            e.printStackTrace();
             model.addAttribute("errotitulo", "Erro ao salvar respostas");
             model.addAttribute("erro", e.getMessage());
-            return iniciar(respostaAlunoDTO, model);
+            model.addAttribute("alunos", usuarioService.listarTodos());
+            model.addAttribute("provas", provaService.listarTodos());
+            return "resposta/formulario";
         }
     }
 

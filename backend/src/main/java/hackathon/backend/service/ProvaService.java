@@ -1,5 +1,6 @@
 package hackathon.backend.service;
 
+import hackathon.backend.dto.GabaritoDTO;
 import hackathon.backend.dto.ProvaDTO;
 import hackathon.backend.model.Disciplina;
 import hackathon.backend.model.Prova;
@@ -12,10 +13,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class ProvaService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ProvaService.class);
 
     @Autowired
     private ProvaRepository provaRepository;
@@ -28,37 +35,61 @@ public class ProvaService {
 
     @Transactional
     public void salvarProvaComGabarito(ProvaDTO dto) {
-        Turma turma = turmaRepository.findById(dto.getTurmaId()).orElseThrow();
-        Disciplina disciplina = disciplinaRepository.findById(dto.getDisciplinaId()).orElseThrow();
+        logger.debug("DTO.getId() on entry: {}", dto.getId());
 
-        Prova prova = new Prova();
+        Turma turma = turmaRepository.findById(dto.getTurmaId())
+                .orElseThrow(() -> new RuntimeException("Turma não encontrada com ID: " + dto.getTurmaId()));
+        Disciplina disciplina = disciplinaRepository.findById(dto.getDisciplinaId())
+                .orElseThrow(() -> new RuntimeException("Disciplina não encontrada com ID: " + dto.getDisciplinaId()));
+
+        Prova prova;
+        if (dto.getId() != null) {
+            prova = provaRepository.findById(dto.getId())
+                    .orElseThrow(() -> new RuntimeException("Prova não encontrada para edição com ID: " + dto.getId()));
+            logger.debug("Prova fetched from DB. ID: {}", prova.getId());
+        } else {
+            prova = new Prova();
+            logger.debug("Creating new Prova instance (ID will be null here for new record).");
+        }
+
         prova.setTitulo(dto.getTitulo());
         prova.setData(dto.getData());
         prova.setTurma(turma);
         prova.setDisciplina(disciplina);
 
-        List<ProvaGabarito> gabaritoList = dto.getGabarito().stream().map(g -> {
-            ProvaGabarito gab = new ProvaGabarito();
-            gab.setProva(prova);
-            gab.setNumeroQuestao(g.getNumeroQuestao());
-            gab.setRespostaCorreta(g.getRespostaCorreta());
-            return gab;
-        }).toList();
+        List<ProvaGabarito> novosGabaritos = new ArrayList<>();
+        if (dto.getGabarito() != null) {
+            for (GabaritoDTO gDto : dto.getGabarito()) {
+                ProvaGabarito gab = new ProvaGabarito();
+                gab.setProva(prova);
+                gab.setNumeroQuestao(gDto.getNumeroQuestao());
+                gab.setRespostaCorreta(gDto.getRespostaCorreta());
+                novosGabaritos.add(gab);
+            }
+        }
 
-        prova.setGabarito(gabaritoList);
+        if (prova.getGabarito() != null) {
+            prova.getGabarito().clear();
+        } else {
+            prova.setGabarito(new ArrayList<>());
+        }
+        prova.getGabarito().addAll(novosGabaritos);
 
+        logger.debug("Prova object BEFORE save. ID: {}, Title: {}", prova.getId(), prova.getTitulo());
         provaRepository.save(prova);
+        logger.debug("Prova object AFTER save. Final ID: {}", prova.getId());
     }
 
+    public Prova buscarPorId(Long id) {
+        return provaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Prova não encontrada com ID: " + id));
+    }
 
     public List<Prova> listarTodos() {
         return provaRepository.findAll();
     }
 
-    public Prova buscarPorId(Long id) {
-        return provaRepository.findById(id).orElseThrow();
-    }
-
+    @Transactional
     public void deletarPorId(Long id) {
         provaRepository.deleteById(id);
     }

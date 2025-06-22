@@ -2,48 +2,121 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:insert="~{index :: head}">
     <meta charset="UTF-8">
-    <title>Formulário de Resposta</title>
+    <title>Formulário de Resposta do Aluno</title>
 </head>
 <body>
 <div class="container">
     <div th:insert="~{index :: menu}"></div>
     <br/>
-    <form>
-        <input type="hidden" name="id" th:value="${respostaAlunoDTO.id}">
+    <form th:action="@{/resposta/salvar}" th:object="${respostaAlunoDTO}" method="post">
+        <input type="hidden" name="id" th:field="*{id}">
 
-        <div class="mb-3">
+        <div class="mb-4">
             <label for="alunoId" class="form-label">Aluno</label>
-            <select class="form-control" id="alunoId" name="alunoId" required>
-                <option th:each="aluno : ${alunos}" th:value="${aluno.id}" th:text="${aluno.nome}"
-                        th:selected="${aluno.id} == ${respostaAlunoDTO.alunoId}"></option>
+            <select class="form-select" id="alunoId" name="alunoId" required>
+                <option value="">Selecione um Aluno</option>
+                <option th:each="aluno : ${alunos}"
+                        th:value="${aluno.id}"
+                        th:text="${aluno.nome}"
+                        th:selected="${aluno.id} == ${respostaAlunoDTO.alunoId}">
+                </option>
             </select>
         </div>
 
         <div class="mb-3">
             <label for="provaId" class="form-label">Prova</label>
-            <select class="form-control" id="provaId" name="provaId" required>
-                <option th:each="prova : ${provas}" th:value="${prova.id}" th:text="${prova.titulo}"
-                        th:selected="${prova.id} == ${respostaAlunoDTO.provaId}"></option>
+            <select class="form-control" id="provaId" th:field="*{provaId}" required>
+                <option value="">Selecione uma Prova</option>
+                <option th:each="prova : ${provas}" th:value="${prova.id}" th:text="${prova.titulo}"></option>
             </select>
         </div>
 
-        <div class="mb-3">
-            <label for="resposta" class="form-label">Resposta</label>
-            <input type="text" class="form-control" id="resposta" name="resposta"
-                   th:value="${respostaAlunoDTO.resposta}" required>
+        <h4>Respostas das Questões</h4>
+        <div id="respostasContainer">
+            <div th:each="detalhe, stat : *{detalhes}" class="mb-3 border p-3 mt-2">
+                <h5>Questão <span th:text="${stat.index + 1}"></span></h5>
+                <input type="hidden" th:field="*{detalhes[__${stat.index}__].id}">
+                <div class="mb-3">
+                    <label th:for="${'detalhes' + stat.index + '.numeroQuestao'}" class="form-label">Número da Questão</label>
+                    <input type="number" class="form-control"
+                           th:field="*{detalhes[__${stat.index}__].numeroQuestao}" required>
+                </div>
+                <div class="mb-3">
+                    <label th:for="${'detalhes' + stat.index + '.resposta'}" class="form-label">Resposta do Aluno</label>
+                    <input type="text" class="form-control"
+                           th:field="*{detalhes[__${stat.index}__].resposta}" required>
+                </div>
+                <button type="button" class="btn btn-danger btn-sm remove-resposta"
+                        th:attr="data-index=${stat.index}">Remover Questão</button>
+            </div>
         </div>
 
-        <div class="mb-3">
-            <label for="correta" class="form-label">Correta?</label>
-            <select class="form-control" id="correta" name="correta" required>
-                <option th:value="true" th:selected="${respostaAlunoDTO.correta} == true">Sim</option>
-                <option th:value="false" th:selected="${respostaAlunoDTO.correta} == false">Não</option>
-            </select>
-        </div>
-
-        <button class="btn btn-dark" formmethod="post" th:formaction="@{/resposta/salvar}" type="submit">Salvar</button>
+        <button type="button" class="btn btn-info mt-3" id="addQuestao">Adicionar Questão</button>
+        <button class="btn btn-dark mt-3" type="submit">Salvar Respostas</button>
     </form>
 </div>
+
 <div th:insert="~{index :: script}"></div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var proximaQuestaoIndex = /*[[${#lists.size(respostaAlunoDTO.detalhes)}]]*/ 0;
+
+    document.getElementById('addQuestao').addEventListener('click', function() {
+        var container = document.getElementById('respostasContainer');
+        var newDiv = document.createElement('div');
+        newDiv.className = 'mb-3 border p-3 mt-2';
+        newDiv.innerHTML = `
+            <h5>Questão <span>${proximaQuestaoIndex + 1}</span></h5>
+            <input type="hidden" name="detalhes[${proximaQuestaoIndex}].id" value="">
+            <div class="mb-3">
+                <label for="detalhes${proximaQuestaoIndex}numeroQuestao" class="form-label">Número da Questão</label>
+                <input type="number" class="form-control" id="detalhes${proximaQuestaoIndex}numeroQuestao"
+                       name="detalhes[${proximaQuestaoIndex}].numeroQuestao" required>
+            </div>
+            <div class="mb-3">
+                <label for="detalhes${proximaQuestaoIndex}resposta" class="form-label">Resposta do Aluno</label>
+                <input type="text" class="form-control" id="detalhes${proximaQuestaoIndex}resposta"
+                       name="detalhes[${proximaQuestaoIndex}].resposta" required>
+            </div>
+            <button type="button" class="btn btn-danger btn-sm remove-resposta" data-index="${proximaQuestaoIndex}">Remover Questão</button>
+        `;
+        container.appendChild(newDiv);
+        proximaQuestaoIndex++;
+        updateRemoveButtons();
+    });
+
+    function updateRemoveButtons() {
+        document.querySelectorAll('.remove-resposta').forEach(button => {
+            button.onclick = function() {
+                this.closest('.border.p-3.mt-2').remove();
+                reIndexInputs();
+            };
+        });
+    }
+
+    function reIndexInputs() {
+        var container = document.getElementById('respostasContainer');
+        var detailDivs = container.querySelectorAll('.border.p-3.mt-2');
+        proximaQuestaoIndex = 0;
+
+        detailDivs.forEach((div, index) => {
+            div.querySelector('h5 span').textContent = (index + 1);
+            div.querySelectorAll('input, select').forEach(input => {
+                var oldName = input.name;
+                var newName = `detalhes[${index}].` + oldName.substring(oldName.indexOf('.') + 1);
+                input.name = newName;
+                input.id = newName.replace(/\[|\]|\./g, '');
+            });
+            var removeButton = div.querySelector('.remove-resposta');
+            if (removeButton) {
+                removeButton.setAttribute('data-index', index);
+            }
+            proximaQuestaoIndex++;
+        });
+    }
+    updateRemoveButtons();
+    /*]]>*/
+</script>
 </body>
 </html>

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*")  // Permite requisições de qualquer origem (teste; em produção, restringir)
+@CrossOrigin(origins = "*")
 public class AuthController {
 
     @Autowired
@@ -21,13 +21,10 @@ public class AuthController {
 
     @PostMapping("/login")
     public UsuarioDTO login(@RequestBody UsuarioDTO loginDTO) {
-        // Busca usuário pelo email
         Usuario usuario = usuarioRepository.findByEmail(loginDTO.getEmail())
                 .orElseThrow(() -> new UnauthorizedException("Usuário ou senha inválidos"));
 
-        // Verifica senha com bcrypt
         if (passwordEncoder.matches(loginDTO.getSenha(), usuario.getSenha())) {
-            // Retorna DTO com dados do usuário (sem senha)
             return new UsuarioDTO(usuario);
         } else {
             throw new UnauthorizedException("Usuário ou senha inválidos");

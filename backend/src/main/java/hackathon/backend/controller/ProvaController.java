@@ -58,6 +58,8 @@ public class ProvaController {
                                       @RequestParam(value = "removeIndex", required = false, defaultValue = "-1") int removeIndex,
                                       Model model) {
 
+        System.out.println("DEBUG: ProvaDTO recebido no Controller para processar. ID: " + provaDTO.getId());
+
         if (provaDTO.getGabarito() == null) {
             provaDTO.setGabarito(new ArrayList<>());
         }
@@ -91,7 +93,7 @@ public class ProvaController {
             return "prova/formulario";
 
         } else {
-            System.out.println("ProvaDTO recebido para salvar: " + provaDTO);
+            System.out.println("DEBUG: ProvaDTO para salvar no Controller. ID: " + provaDTO.getId());
             try {
                 if (provaDTO.getGabarito() != null) {
                     provaDTO.getGabarito().forEach(g -> g.setRespostaCorreta(g.getRespostaCorreta().toUpperCase().trim()));

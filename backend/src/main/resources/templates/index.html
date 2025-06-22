@@ -34,11 +34,21 @@
                     <a class="nav-link" href="/prova/listar">Provas</a>
                 </li>
             </ul>
+            <ul class="navbar-nav" sec:authorize="hasRole('PROFESSOR')">
+                <li class="nav-item">
+                    <a class="nav-link" href="/resposta">Corrigir</a>
+                </li>
+            </ul>
         </div>
 
         <div class="d-flex align-items-center" sec:authorize="hasRole('ADMINISTRADOR')">
             <span class="text-white fw-semibold me-2">
                 Painel Administrativo
+            </span>
+        </div>
+        <div class="d-flex align-items-center" sec:authorize="hasRole('PROFESSOR')">
+            <span class="text-white fw-semibold me-2">
+                Painel Professor
             </span>
         </div>
     </div>
