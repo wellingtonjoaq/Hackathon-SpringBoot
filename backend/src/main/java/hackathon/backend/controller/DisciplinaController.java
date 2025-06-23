@@ -48,13 +48,17 @@ public class DisciplinaController {
         }
     }
 
+    // Método listar modificado para aceitar filtros
     @GetMapping("listar")
-    public String listar(Model model) {
-        var disciplinas = disciplinaService.listarTodos()
+    public String listar(
+            @RequestParam(name = "filtroNome", required = false) String filtroNome,
+            @RequestParam(name = "filtroProfessor", required = false) String filtroProfessor,
+            Model model) {
+
+        var disciplinas = disciplinaService.buscarComFiltros(filtroNome, filtroProfessor)
                 .stream()
                 .map(disc -> {
                     DisciplinaDTO dto = modelMapper.map(disc, DisciplinaDTO.class);
-                    // Preencher nome do professor corretamente
                     if (disc.getProfessor() != null) {
                         dto.setNomeProfessor(disc.getProfessor().getNome());
                     } else {
@@ -64,7 +68,15 @@ public class DisciplinaController {
                 })
                 .collect(Collectors.toList());
 
+        var professores = disciplinaService.listarProfessoresUnicos();
+
         model.addAttribute("disciplinas", disciplinas);
+        model.addAttribute("professores", professores);
+
+        // Valores atuais dos filtros para manter no formulário
+        model.addAttribute("filtroNome", filtroNome);
+        model.addAttribute("filtroProfessor", filtroProfessor);
+
         return "disciplina/lista";
     }
 

@@ -2,10 +2,14 @@ package hackathon.backend.service;
 
 import hackathon.backend.dto.RespostaAlunoDTO;
 import hackathon.backend.dto.RespostaAlunoDetalheDTO;
-import hackathon.backend.model.*;
+import hackathon.backend.model.Prova;
+import hackathon.backend.model.ProvaGabarito;
+import hackathon.backend.model.RespostaAluno;
+import hackathon.backend.model.RespostaAlunoDetalhe;
+import hackathon.backend.model.Usuario;
 import hackathon.backend.repository.ProvaRepository;
 import hackathon.backend.repository.RespostaAlunoRepository;
-import hackathon.backend.repository.UsuarioRepository; // Importa UsuarioRepository
+import hackathon.backend.repository.UsuarioRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,7 +59,6 @@ public class RespostaAlunoService {
 
         int acertos = 0;
 
-
         for (RespostaAlunoDetalheDTO detalheDTO : dto.getDetalhes()) {
             String respostaCorreta = gabaritoMap.get(detalheDTO.getNumeroQuestao());
 
@@ -88,6 +91,28 @@ public class RespostaAlunoService {
         return repository.findAll();
     }
 
+    /**
+     * Lista respostas filtrando por alunoId e provaId, se forem informados.
+     * Se ambos forem nulos, retorna todas as respostas.
+     */
+    public List<RespostaAluno> listarPorFiltros(Long alunoId, Long provaId) {
+        List<RespostaAluno> respostas = repository.findAll();
+
+        if (alunoId != null) {
+            respostas = respostas.stream()
+                    .filter(r -> r.getAluno() != null && r.getAluno().getId().equals(alunoId))
+                    .collect(Collectors.toList());
+        }
+
+        if (provaId != null) {
+            respostas = respostas.stream()
+                    .filter(r -> r.getProva() != null && r.getProva().getId().equals(provaId))
+                    .collect(Collectors.toList());
+        }
+
+        return respostas;
+    }
+
     public RespostaAlunoDTO buscarPorId(Long id) {
         RespostaAluno respostaAluno = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Resposta não encontrada com ID: " + id));
@@ -118,7 +143,6 @@ public class RespostaAlunoService {
 
         return dto;
     }
-
 
     @Transactional
     public void deletarPorId(Long id) {

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
@@ -58,8 +59,6 @@ public class ProvaController {
                                       @RequestParam(value = "removeIndex", required = false, defaultValue = "-1") int removeIndex,
                                       Model model) {
 
-        System.out.println("DEBUG: ProvaDTO recebido no Controller para processar. ID: " + provaDTO.getId());
-
         if (provaDTO.getGabarito() == null) {
             provaDTO.setGabarito(new ArrayList<>());
         }
@@ -93,7 +92,6 @@ public class ProvaController {
             return "prova/formulario";
 
         } else {
-            System.out.println("DEBUG: ProvaDTO para salvar no Controller. ID: " + provaDTO.getId());
             try {
                 if (provaDTO.getGabarito() != null) {
                     provaDTO.getGabarito().forEach(g -> g.setRespostaCorreta(g.getRespostaCorreta().toUpperCase().trim()));
@@ -112,21 +110,26 @@ public class ProvaController {
     }
 
     @GetMapping("listar")
-    public String listar(Model model) {
-        var provas = provaService.listarTodos()
+    public String listar(@RequestParam(required = false) Long turmaId,
+                         @RequestParam(required = false) Long disciplinaId,
+                         @RequestParam(required = false)
+                         @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE)
+                         LocalDate data,
+                         Model model) {
+
+        var provas = provaService.buscarPorFiltros(turmaId, disciplinaId, data)
                 .stream()
                 .map(p -> {
                     ProvaDTO dto = modelMapper.map(p, ProvaDTO.class);
-                    if (p.getTurma() != null) {
-                        dto.setNomeTurma(p.getTurma().getNome());
-                    }
-                    if (p.getDisciplina() != null) {
-                        dto.setNomeDisciplina(p.getDisciplina().getNome());
-                    }
+                    if (p.getTurma() != null) dto.setNomeTurma(p.getTurma().getNome());
+                    if (p.getDisciplina() != null) dto.setNomeDisciplina(p.getDisciplina().getNome());
                     return dto;
                 })
                 .collect(Collectors.toList());
+
         model.addAttribute("provas", provas);
+        model.addAttribute("turmas", turmaService.listarTodos());
+        model.addAttribute("disciplinas", disciplinaService.listarTodos());
         return "prova/lista";
     }
 

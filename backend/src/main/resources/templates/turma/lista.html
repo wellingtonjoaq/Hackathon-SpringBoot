@@ -18,6 +18,41 @@
         </a>
     </div>
 
+    <!-- Filtros -->
+    <div class="mb-3">
+        <form method="get" th:action="@{/turma/listar}" class="row g-2">
+            <div class="col-md-4">
+                <input type="text" name="filtroNome" class="form-control" placeholder="Filtrar por nome"
+                       th:value="${filtroNome}">
+            </div>
+
+            <div class="col-md-3">
+                <select class="form-select" name="filtroPeriodo">
+                    <option th:value="''" th:selected="${filtroPeriodo == null or filtroPeriodo == ''}">Todos os Períodos</option>
+                    <option th:each="p : ${periodos}"
+                            th:value="${p}"
+                            th:text="${p}"
+                            th:selected="${p == filtroPeriodo}"></option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <select class="form-select" name="filtroCurso">
+                    <option th:value="''" th:selected="${filtroCurso == null or filtroCurso == ''}">Todos os Cursos</option>
+                    <option th:each="c : ${cursos}"
+                            th:value="${c}"
+                            th:text="${c}"
+                            th:selected="${c == filtroCurso}"></option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-dark w-100">Filtrar</button>
+            </div>
+        </form>
+    </div>
+
+
     <div class="table-responsive">
         <table class="table table-hover align-middle">
             <thead class="table-dark">

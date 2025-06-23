@@ -132,12 +132,28 @@ public class RespostaAlunoController {
     }
 
     @GetMapping("listar")
-    public String listar(Model model) {
-        var respostas = respostaAlunoService.listarTodos()
+    public String listar(
+            @RequestParam(required = false) Long alunoId,
+            @RequestParam(required = false) Long provaId,
+            Model model) {
+
+        var respostas = respostaAlunoService.listarPorFiltros(alunoId, provaId)
                 .stream()
                 .map(r -> modelMapper.map(r, RespostaAlunoDTO.class))
                 .collect(Collectors.toList());
+
         model.addAttribute("respostas", respostas);
+        model.addAttribute("alunoId", alunoId);
+        model.addAttribute("provaId", provaId);
+
+        var alunos = usuarioService.listarTodos()
+                .stream()
+                .filter(u -> u.getPerfil() == Perfil.ALUNO)
+                .collect(Collectors.toList());
+        model.addAttribute("alunos", alunos);
+
+        model.addAttribute("provas", provaService.listarTodos());
+
         return "resposta/lista";
     }
 

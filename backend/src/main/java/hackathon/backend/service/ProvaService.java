@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,6 +88,13 @@ public class ProvaService {
 
     public List<Prova> listarTodos() {
         return provaRepository.findAll();
+    }
+
+    public List<Prova> buscarPorFiltros(Long turmaId, Long disciplinaId, LocalDate data) {
+        if (turmaId == null && disciplinaId == null && data == null) {
+            return provaRepository.findAll();
+        }
+        return provaRepository.buscarPorFiltros(turmaId, disciplinaId, data);
     }
 
     @Transactional

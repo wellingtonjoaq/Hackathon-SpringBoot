@@ -19,6 +19,32 @@
         </a>
     </div>
 
+    <!-- Formulário de filtro -->
+    <form method="get" action="#" class="row g-3 mb-4 align-items-end">
+
+        <div class="col-md-4">
+            <label for="filtroNome" class="form-label">Nome da Disciplina</label>
+            <input type="text" id="filtroNome" name="filtroNome" class="form-control"
+                   th:value="${filtroNome}" placeholder="Pesquisar por nome...">
+        </div>
+
+        <div class="col-md-4">
+            <label for="filtroProfessor" class="form-label">Professor</label>
+            <select id="filtroProfessor" name="filtroProfessor" class="form-select">
+                <option value="" th:selected="${filtroProfessor == null or filtroProfessor == ''}">Todos</option>
+                <th:block th:each="professor : ${professores}">
+                    <option th:value="${professor}" th:text="${professor}"
+                            th:selected="${professor == filtroProfessor}"></option>
+                </th:block>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-dark w-100">Filtrar</button>
+        </div>
+
+    </form>
+
     <div class="table-responsive">
         <table class="table table-hover align-middle">
             <thead class="table-dark">
