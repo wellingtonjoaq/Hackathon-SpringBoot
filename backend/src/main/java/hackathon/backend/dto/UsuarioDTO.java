@@ -12,7 +12,7 @@ public class UsuarioDTO {
     private String email;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private String senha; // Agora é lida no JSON mas não enviada na resposta
+    private String senha;
 
     private Perfil perfil;
 

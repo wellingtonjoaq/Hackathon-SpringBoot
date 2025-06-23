@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="~{index :: head}">
+    <meta charset="UTF-8">
+    <title>Consulta de Notas</title>
+</head>
+<body>
+<div class="container mt-5 pt-4">
+    <div th:insert="~{index :: menu}"></div>
+
+    <h2 class="mb-4">Consulta de Notas dos Alunos</h2>
+
+    <table class="table table-bordered">
+        <thead class="table-dark">
+        <tr>
+            <th>Aluno</th>
+            <th>Turma</th>
+            <th>Disciplina</th>
+            <th>Prova</th>
+            <th>Data</th>
+            <th>Nota</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="nota : ${notas}">
+            <td th:text="${nota.nomeAluno}"></td>
+            <td th:text="${nota.turma}"></td>
+            <td th:text="${nota.disciplina}"></td>
+            <td th:text="${nota.tituloProva}"></td>
+            <td th:text="${nota.dataProva}"></td>
+            <td th:text="${#numbers.formatDecimal(nota.nota, 0, 2)}"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(notas)}">
+            <td colspan="6" class="text-center text-muted">Nenhuma nota encontrada.</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div th:insert="~{index :: script}"></div>
+</body>
+</html>

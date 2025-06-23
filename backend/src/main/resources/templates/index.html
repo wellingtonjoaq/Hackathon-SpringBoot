@@ -38,10 +38,12 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/resposta/listar">Corrigir</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/notas">Resultados</a>
+                </li>
             </ul>
         </div>
 
-        <!-- Painel do usuário -->
         <div class="d-flex align-items-center me-3" sec:authorize="hasRole('ADMINISTRADOR')">
             <span class="text-white fw-semibold">
                 Painel Administrativo
@@ -53,7 +55,6 @@
             </span>
         </div>
 
-        <!-- Botão de logout -->
         <div class="d-flex align-items-center" sec:authorize="isAuthenticated()">
             <form th:action="@{/logout}" method="post">
                 <button type="submit" class="btn btn-outline-light btn-sm">

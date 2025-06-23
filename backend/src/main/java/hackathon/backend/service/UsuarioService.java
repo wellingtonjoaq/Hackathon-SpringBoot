@@ -6,7 +6,9 @@ import hackathon.backend.model.Turma;
 import hackathon.backend.model.Usuario;
 import hackathon.backend.repository.AlunoRepository;
 import hackathon.backend.repository.UsuarioRepository;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,7 +23,11 @@ public class UsuarioService {
     @Autowired
     private AlunoRepository alunoRepository;
 
-    public List<Usuario> listarTodos() {
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
+
+public List<Usuario> listarTodos() {
         return repository.findAll();
     }
 
@@ -29,12 +35,8 @@ public class UsuarioService {
         return repository.findById(id).orElseThrow();
     }
 
-    /**
-     * Lista usuários filtrando por perfil e turma (opcionais).
-     * @param perfil filtro por perfil (opcional)
-     * @param turma filtro por turma (opcional)
-     * @return lista filtrada de usuários
-     */
+
+
     public List<Usuario> listarComFiltro(Perfil perfil, Turma turma) {
         List<Usuario> usuarios = repository.findAll();
 
@@ -55,5 +57,11 @@ public class UsuarioService {
         }
 
         return usuarios;
+    }
+
+    public Usuario getUsuarioLogado() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado: " + email));
     }
 }
