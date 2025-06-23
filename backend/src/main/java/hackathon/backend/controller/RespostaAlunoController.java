@@ -139,7 +139,19 @@ public class RespostaAlunoController {
 
         var respostas = respostaAlunoService.listarPorFiltros(alunoId, provaId)
                 .stream()
-                .map(r -> modelMapper.map(r, RespostaAlunoDTO.class))
+                .map(r -> {
+                    var dto = modelMapper.map(r, RespostaAlunoDTO.class);
+
+                    // Adicionando os nomes para exibir na tabela
+                    if (r.getAluno() != null) {
+                        dto.setAlunoNome(r.getAluno().getNome());
+                    }
+                    if (r.getProva() != null) {
+                        dto.setProvaTitulo(r.getProva().getTitulo());
+                    }
+
+                    return dto;
+                })
                 .collect(Collectors.toList());
 
         model.addAttribute("respostas", respostas);
@@ -156,6 +168,7 @@ public class RespostaAlunoController {
 
         return "resposta/lista";
     }
+
 
     @GetMapping("remover/{id}")
     public String remover(@PathVariable Long id) {
