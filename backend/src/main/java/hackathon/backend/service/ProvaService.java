@@ -80,6 +80,11 @@ public class ProvaService {
         logger.debug("Prova object AFTER save. Final ID: {}", prova.getId());
     }
 
+    @Transactional
+    public void salvar(Prova prova) {
+        provaRepository.save(prova);
+    }
+
     public Prova buscarPorId(Long id) {
         return provaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Prova não encontrada com ID: " + id));
