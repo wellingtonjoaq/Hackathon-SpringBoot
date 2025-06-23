@@ -30,4 +30,18 @@ public class DisciplinaService {
     public void deletarPorId(Long id) {
         repository.deleteById(id);
     }
+
+    public List<Disciplina> buscarComFiltros(String nome, String professor) {
+        if (nome != null && nome.trim().isEmpty()) {
+            nome = null;
+        }
+        if (professor != null && professor.trim().isEmpty()) {
+            professor = null;
+        }
+        return repository.buscarComFiltros(nome, professor);
+    }
+
+    public List<String> listarProfessoresUnicos() {
+        return repository.listarProfessoresUnicos();
+    }
 }

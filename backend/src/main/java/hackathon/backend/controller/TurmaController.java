@@ -1,6 +1,7 @@
 package hackathon.backend.controller;
 
 import hackathon.backend.dto.TurmaDTO;
+import hackathon.backend.model.Turma;
 import hackathon.backend.service.TurmaService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
@@ -39,14 +41,33 @@ public class TurmaController {
     }
 
     @GetMapping("listar")
-    public String listar(Model model) {
-        var turmas = turmaService.listarTodos()
-                .stream()
+    public String listar(
+            @RequestParam(name = "filtroNome", required = false) String filtroNome,
+            @RequestParam(name = "filtroPeriodo", required = false) String filtroPeriodo,
+            @RequestParam(name = "filtroCurso", required = false) String filtroCurso,
+            Model model) {
+
+        var turmas = turmaService.buscarComFiltros(filtroNome, filtroPeriodo, filtroCurso);
+
+        var turmasDTO = turmas.stream()
                 .map(t -> modelMapper.map(t, TurmaDTO.class))
                 .collect(Collectors.toList());
-        model.addAttribute("turmas", turmas);
+
+        // Busca todos os períodos e cursos distintos para popular os <selects>
+        var periodos = turmaService.buscarPeriodos();
+        var cursos = turmaService.buscarCursos();
+
+        model.addAttribute("turmas", turmasDTO);
+        model.addAttribute("filtroNome", filtroNome);
+        model.addAttribute("filtroPeriodo", filtroPeriodo);
+        model.addAttribute("filtroCurso", filtroCurso);
+        model.addAttribute("periodos", periodos);
+        model.addAttribute("cursos", cursos);
+
         return "turma/lista";
     }
+
+
 
     @GetMapping("editar/{id}")
     public String editar(@PathVariable Long id, Model model) {

@@ -16,6 +16,39 @@
         </a>
     </div>
 
+    <!-- FORMULÁRIO DE FILTRO -->
+    <form class="row g-3 mb-4" method="get" th:action="@{/usuario/listar}">
+        <div class="col-md-4">
+            <label for="perfil" class="form-label">Perfil</label>
+            <select id="perfil" name="perfil" class="form-select">
+                <option value="">Todos</option>
+                <option th:each="p : ${perfis}"
+                        th:value="${p}"
+                        th:text="${p}"
+                        th:selected="${p} == ${param.perfil}">
+                </option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label for="turma" class="form-label">Turma</label>
+            <select id="turma" name="turmaId" class="form-select">
+                <option value="">Todas</option>
+                <option th:each="turma : ${turmas}"
+                        th:value="${turma.id}"
+                        th:text="${turma.nome}"
+                        th:selected="${turma.id} == ${param.turmaId}">
+                </option>
+            </select>
+        </div>
+
+        <div class="col-md-4 d-flex align-items-end">
+            <button type="submit" class="btn btn-dark w-100">
+                <i class="bi bi-search"></i> Filtrar
+            </button>
+        </div>
+    </form>
+
     <div class="table-responsive">
         <table class="table table-hover align-middle">
             <thead class="table-dark">
@@ -46,6 +79,9 @@
                         <i class="bi bi-dash-square"></i>
                     </a>
                 </td>
+            </tr>
+            <tr th:if="${usuarios == null or #lists.isEmpty(usuarios)}">
+                <td colspan="5" class="text-center text-muted">Nenhum usuário encontrado.</td>
             </tr>
             </tbody>
         </table>

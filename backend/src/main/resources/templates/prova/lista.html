@@ -18,6 +18,45 @@
         </a>
     </div>
 
+    <!-- FORMULÁRIO DE FILTRO -->
+    <form class="row g-3 mb-4" method="get" th:action="@{/prova/listar}">
+        <div class="col-md-4">
+            <label for="turma" class="form-label">Turma</label>
+            <select class="form-select" id="turma" name="turmaId">
+                <option value="">Todas</option>
+                <option th:each="turma : ${turmas}"
+                        th:value="${turma.id}"
+                        th:text="${turma.nome}"
+                        th:selected="${param.turmaId} == ${turma.id}">
+                </option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label for="disciplina" class="form-label">Disciplina</label>
+            <select class="form-select" id="disciplina" name="disciplinaId">
+                <option value="">Todas</option>
+                <option th:each="disciplina : ${disciplinas}"
+                        th:value="${disciplina.id}"
+                        th:text="${disciplina.nome}"
+                        th:selected="${param.disciplinaId} == ${disciplina.id}">
+                </option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label for="data" class="form-label">Data</label>
+            <input type="date" class="form-control" id="data" name="data"
+                   th:value="${param.data}">
+        </div>
+
+        <div class="col-md-1 d-flex align-items-end">
+            <button type="submit" class="btn btn-dark w-100">
+                <i class="bi bi-search"></i>
+            </button>
+        </div>
+    </form>
+
     <table class="table table-hover table-bordered">
         <thead class="table-dark">
         <tr>
@@ -25,6 +64,7 @@
             <th class="text-center">Título</th>
             <th class="text-center">Turma</th>
             <th class="text-center">Disciplina</th>
+            <th class="text-center">Data</th> <!-- NOVA COLUNA -->
             <th class="text-center">Ações</th>
         </tr>
         </thead>
@@ -34,6 +74,7 @@
             <td class="text-center" th:text="${prova.titulo}">Prova 1</td>
             <td class="text-center" th:text="${prova.nomeTurma}">Turma A</td>
             <td class="text-center" th:text="${prova.nomeDisciplina}">Matemática</td>
+            <td class="text-center" th:text="${#temporals.format(prova.data, 'dd/MM/yyyy')}">01/06/2025</td> <!-- FORMATAÇÃO -->
             <td class="text-center">
                 <a th:href="@{'/prova/' + ${prova.id}}" class="btn btn-outline-dark" title="Editar">
                     <i class="bi bi-pencil-square"></i>
@@ -45,7 +86,7 @@
             </td>
         </tr>
         <tr th:if="${provas == null or #lists.isEmpty(provas)}">
-            <td colspan="5" class="text-center text-muted">
+            <td colspan="6" class="text-center text-muted"> <!-- Atualizado colspan -->
                 Nenhuma prova cadastrada no sistema.
             </td>
         </tr>

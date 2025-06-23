@@ -14,5 +14,8 @@ public class RespostaAlunoDTO {
     private Integer novaQuestaoNumero;
     private String novaQuestaoResposta;
     private Integer removeIndex;
-    private String action; 
+    private String action;
+    private String alunoNome;
+    private String provaTitulo;
+
 }

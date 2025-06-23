@@ -10,6 +10,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Controller
 @RequestMapping("usuario")
 public class UsuarioController {
@@ -83,8 +85,39 @@ public class UsuarioController {
     }
 
     @GetMapping("listar")
-    public String listar(Model model) {
-        model.addAttribute("usuarios", usuarioRepository.findAll());
+    public String listar(
+            @RequestParam(required = false) Perfil perfil,
+            @RequestParam(required = false) Long turmaId,
+            Model model) {
+
+        List<Usuario> usuarios = usuarioRepository.findAll();
+
+        // Filtra por perfil, se informado
+        if (perfil != null) {
+            usuarios = usuarios.stream()
+                    .filter(u -> u.getPerfil() == perfil)
+                    .toList();
+        }
+
+        // Filtra por turma, se informado
+        if (turmaId != null) {
+            usuarios = usuarios.stream()
+                    .filter(u -> {
+                        if (u.getPerfil() != Perfil.ALUNO) return false;
+                        Aluno aluno = alunoRepository.findByUsuario(u);
+                        return aluno != null && aluno.getTurma() != null && aluno.getTurma().getId().equals(turmaId);
+                    })
+                    .toList();
+        }
+
+        model.addAttribute("usuarios", usuarios);
+        model.addAttribute("perfis", Perfil.values());
+        model.addAttribute("turmas", turmaRepository.findAll());
+
+        // Mantém os filtros selecionados na página
+        model.addAttribute("filtroPerfil", perfil);
+        model.addAttribute("filtroTurmaId", turmaId);
+
         return "usuario/lista";
     }
 

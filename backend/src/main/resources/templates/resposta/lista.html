@@ -16,27 +16,62 @@
         </a>
     </div>
 
+    <!-- FORMULÁRIO DE FILTRO -->
+    <form class="row g-3 mb-4" method="get" th:action="@{/resposta/listar}">
+        <div class="col-md-5">
+            <label for="alunoId" class="form-label">Aluno</label>
+            <select class="form-select" id="alunoId" name="alunoId">
+                <option value="">Todos</option>
+                <option th:each="aluno : ${alunos}"
+                        th:value="${aluno.id}"
+                        th:text="${aluno.nome}"
+                        th:selected="${param.alunoId} == ${aluno.id}">
+                </option>
+            </select>
+        </div>
+        <div class="col-md-5">
+            <label for="provaId" class="form-label">Prova</label>
+            <select class="form-select" id="provaId" name="provaId">
+                <option value="">Todas</option>
+                <option th:each="prova : ${provas}"
+                        th:value="${prova.id}"
+                        th:text="${prova.titulo}"
+                        th:selected="${param.provaId} == ${prova.id}">
+                </option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-dark w-100">
+                <i class="bi bi-search"></i> Filtrar
+            </button>
+        </div>
+    </form>
+
     <table class="table table-bordered table-hover">
         <thead class="table-dark">
         <tr>
             <th>ID</th>
             <th>Aluno</th>
             <th>Prova</th>
-            <th>Nota</th> <th>Ações</th>
+            <th>Nota</th>
+            <th>Ações</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="resposta : ${respostas}">
             <td th:text="${resposta.id}"></td>
-            <td th:text="${resposta.alunoId}"></td> <td th:text="${resposta.provaId}"></td> <td th:text="${#numbers.formatDecimal(resposta.nota, 0, 2)}"></td> <td>
-            <a class="btn btn-sm btn-primary" th:href="@{/resposta/{id}(id=${resposta.id})}" title="Editar">
-                <i class="bi bi-pencil"></i>
-            </a>
-            <a class="btn btn-sm btn-danger" th:href="@{/resposta/remover/{id}(id=${resposta.id})}"
-               onclick="return confirm('Tem certeza que deseja remover esta resposta?');" title="Remover">
-                <i class="bi bi-trash"></i>
-            </a>
-        </td>
+            <td th:text="${resposta.alunoNome}"></td>
+            <td th:text="${resposta.provaTitulo}"></td>
+            <td th:text="${#numbers.formatDecimal(resposta.nota, 0, 2)}"></td>
+            <td>
+                <a class="btn btn-sm btn-primary" th:href="@{/resposta/{id}(id=${resposta.id})}" title="Editar">
+                    <i class="bi bi-pencil"></i>
+                </a>
+                <a class="btn btn-sm btn-danger" th:href="@{/resposta/remover/{id}(id=${resposta.id})}"
+                   onclick="return confirm('Tem certeza que deseja remover esta resposta?');" title="Remover">
+                    <i class="bi bi-trash"></i>
+                </a>
+            </td>
         </tr>
         <tr th:if="${respostas == null or #lists.isEmpty(respostas)}">
             <td colspan="5" class="text-center text-muted">Nenhuma resposta de aluno encontrada.</td>

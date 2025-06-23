@@ -30,4 +30,21 @@ public class TurmaService {
     public void deletarPorId(Long id) {
         repository.deleteById(id);
     }
+
+    public List<Turma> buscarComFiltros(String nome, String periodo, String curso) {
+        return repository.findByNomeContainingIgnoreCaseAndPeriodoContainingIgnoreCaseAndCursoContainingIgnoreCase(
+                nome != null ? nome : "",
+                periodo != null ? periodo : "",
+                curso != null ? curso : ""
+        );
+    }
+
+    public List<String> buscarPeriodos() {
+        return repository.findDistinctPeriodo();
+    }
+
+    public List<String> buscarCursos() {
+        return repository.findDistinctCurso();
+    }
 }
+

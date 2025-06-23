@@ -20,7 +20,7 @@ public class RespostaAluno {
 
     @ManyToOne
     @JoinColumn(name = "aluno_id", nullable = false)
-    private Aluno aluno;
+    private Usuario aluno;
 
     @ManyToOne
     @JoinColumn(name = "prova_id", nullable = false)
@@ -31,4 +31,3 @@ public class RespostaAluno {
     @OneToMany(mappedBy = "respostaAluno", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RespostaAlunoDetalhe> detalhes;
 }
-
