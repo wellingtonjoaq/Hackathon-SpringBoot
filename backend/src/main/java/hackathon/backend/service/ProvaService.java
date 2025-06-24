@@ -19,6 +19,8 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import hackathon.backend.model.Bimestre;
+
 
 @Service
 public class ProvaService {
@@ -57,6 +59,7 @@ public class ProvaService {
         prova.setData(dto.getData());
         prova.setTurma(turma);
         prova.setDisciplina(disciplina);
+        prova.setBimestre(Bimestre.valueOf(dto.getBimestre()));
 
         List<ProvaGabarito> novosGabaritos = new ArrayList<>();
         if (dto.getGabarito() != null) {
@@ -95,11 +98,32 @@ public class ProvaService {
         return provaRepository.findAll();
     }
 
-    public List<Prova> buscarPorFiltros(Long turmaId, Long disciplinaId, LocalDate data) {
-        if (turmaId == null && disciplinaId == null && data == null) {
-            return provaRepository.findAll();
+    public List<Prova> buscarPorFiltros(Long turmaId, Long disciplinaId, String bimestreString, LocalDate data) {
+        Bimestre bimestreEnum = null;
+        if (bimestreString != null && !bimestreString.trim().isEmpty()) {
+            try {
+                bimestreEnum = Bimestre.valueOf(bimestreString.trim().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                System.err.println("Bimestre inválido recebido: " + bimestreString);
+            }
         }
-        return provaRepository.buscarPorFiltros(turmaId, disciplinaId, data);
+        return provaRepository.buscarPorFiltros(turmaId, disciplinaId, bimestreEnum, data);
+    }
+
+    public List<Prova> buscarPorDisciplinaTurmaEBimestre(Long disciplinaId, Long turmaId, Bimestre bimestre) {
+        return provaRepository.findByDisciplinaIdAndTurmaIdAndBimestre(disciplinaId, turmaId, bimestre);
+    }
+
+    public List<Prova> buscarPorDisciplinaTurmaEBimestreExcetoId(Long disciplinaId, Long turmaId, Bimestre bimestre, Long provaIdExcluir) {
+        return provaRepository.findByDisciplinaIdAndTurmaIdAndBimestreAndIdIsNot(disciplinaId, turmaId, bimestre, provaIdExcluir);
+    }
+
+    public List<Prova> buscarPorDisciplinaEBimestre(Long disciplinaId, Bimestre bimestre) {
+        return provaRepository.findByDisciplinaIdAndBimestre(disciplinaId, bimestre);
+    }
+
+    public List<Prova> buscarPorDisciplinaEBimestreExcetoId(Long disciplinaId, Bimestre bimestre, Long provaIdExcluir) {
+        return provaRepository.findByDisciplinaIdAndBimestreAndIdIsNot(disciplinaId, bimestre, provaIdExcluir);
     }
 
     @Transactional

@@ -10,10 +10,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
+
+import hackathon.backend.model.Disciplina;
+import hackathon.backend.model.Prova;
+import hackathon.backend.model.Bimestre;
+import java.util.List;
+import java.util.Optional;
+
 
 @Controller
 @RequestMapping("prova")
@@ -36,6 +44,9 @@ public class ProvaController {
         if (id != null) {
             var prova = provaService.buscarPorId(id);
             provaDTO = modelMapper.map(prova, ProvaDTO.class);
+            if (prova.getBimestre() != null) {
+                provaDTO.setBimestre(prova.getBimestre().name());
+            }
             if (provaDTO.getGabarito() == null) {
                 provaDTO.setGabarito(new ArrayList<>());
             }
@@ -57,7 +68,8 @@ public class ProvaController {
                                       @RequestParam(value = "novaQuestaoNumero", required = false) Integer novaQuestaoNumero,
                                       @RequestParam(value = "novaQuestaoResposta", required = false) String novaQuestaoResposta,
                                       @RequestParam(value = "removeIndex", required = false, defaultValue = "-1") int removeIndex,
-                                      Model model) {
+                                      Model model,
+                                      RedirectAttributes redirectAttributes) {
 
         if (provaDTO.getGabarito() == null) {
             provaDTO.setGabarito(new ArrayList<>());
@@ -92,11 +104,42 @@ public class ProvaController {
             return "prova/formulario";
 
         } else {
+            if (provaDTO.getDisciplinaId() == null || provaDTO.getBimestre() == null || provaDTO.getBimestre().isEmpty() || provaDTO.getTurmaId() == null) {
+                model.addAttribute("errotitulo", "Erro de Validação");
+                model.addAttribute("erro", "Por favor, selecione a disciplina, o bimestre e a turma.");
+                model.addAttribute("turmas", turmaService.listarTodos());
+                model.addAttribute("disciplinas", disciplinaService.listarTodos());
+                return "prova/formulario";
+            }
+
+            Disciplina disciplina = disciplinaService.buscarPorId(provaDTO.getDisciplinaId())
+                    .orElseThrow(() -> new IllegalArgumentException("Disciplina não encontrada."));
+
+            Bimestre bimestreEnum = Bimestre.valueOf(provaDTO.getBimestre());
+
+            List<Prova> provasExistentes;
+            if (provaDTO.getId() != null) {
+                provasExistentes = provaService.buscarPorDisciplinaTurmaEBimestreExcetoId(
+                        disciplina.getId(), provaDTO.getTurmaId(), bimestreEnum, provaDTO.getId());
+            } else {
+                provasExistentes = provaService.buscarPorDisciplinaTurmaEBimestre(
+                        disciplina.getId(), provaDTO.getTurmaId(), bimestreEnum);
+            }
+
+            if (!provasExistentes.isEmpty()) {
+                model.addAttribute("errotitulo", "Erro de Validação");
+                model.addAttribute("erro",
+                        "Já existe uma prova cadastrada para a disciplina '" + disciplina.getNome() +
+                                "' na turma '" + turmaService.buscarPorId(provaDTO.getTurmaId()).getNome() +
+                                "' no " + (bimestreEnum == Bimestre.PRIMEIRO ? "Primeiro" : "Segundo") + " Bimestre.");
+                model.addAttribute("turmas", turmaService.listarTodos());
+                model.addAttribute("disciplinas", disciplinaService.listarTodos());
+                return "prova/formulario";
+            }
+
             try {
-                if (provaDTO.getGabarito() != null) {
-                    provaDTO.getGabarito().forEach(g -> g.setRespostaCorreta(g.getRespostaCorreta().toUpperCase().trim()));
-                }
                 provaService.salvarProvaComGabarito(provaDTO);
+                redirectAttributes.addFlashAttribute("mensagemSucesso", "Prova salva com sucesso!");
                 return "redirect:/prova/listar";
             } catch (Exception e) {
                 e.printStackTrace();
@@ -112,25 +155,47 @@ public class ProvaController {
     @GetMapping("listar")
     public String listar(@RequestParam(required = false) Long turmaId,
                          @RequestParam(required = false) Long disciplinaId,
+                         @RequestParam(required = false) String bimestre,
                          @RequestParam(required = false)
                          @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE)
                          LocalDate data,
                          Model model) {
 
-        var provas = provaService.buscarPorFiltros(turmaId, disciplinaId, data)
-                .stream()
-                .map(p -> {
-                    ProvaDTO dto = modelMapper.map(p, ProvaDTO.class);
-                    if (p.getTurma() != null) dto.setNomeTurma(p.getTurma().getNome());
-                    if (p.getDisciplina() != null) dto.setNomeDisciplina(p.getDisciplina().getNome());
-                    return dto;
-                })
-                .collect(Collectors.toList());
+        System.out.println("DEBUG: turmaId=" + turmaId + ", disciplinaId=" + disciplinaId + ", bimestre=" + bimestre + ", data=" + data);
 
-        model.addAttribute("provas", provas);
-        model.addAttribute("turmas", turmaService.listarTodos());
-        model.addAttribute("disciplinas", disciplinaService.listarTodos());
-        return "prova/lista";
+        try {
+            var provas = provaService.buscarPorFiltros(turmaId, disciplinaId, bimestre, data)
+                    .stream()
+                    .map(p -> {
+                        ProvaDTO dto = modelMapper.map(p, ProvaDTO.class);
+                        if (p.getTurma() != null) dto.setNomeTurma(p.getTurma().getNome());
+                        if (p.getDisciplina() != null) dto.setNomeDisciplina(p.getDisciplina().getNome());
+                        if (p.getBimestre() != null) dto.setBimestre(p.getBimestre().name());
+                        return dto;
+                    })
+                    .collect(Collectors.toList());
+
+            System.out.println("DEBUG: Provas carregadas: " + provas.size());
+
+            model.addAttribute("provas", provas);
+            model.addAttribute("turmas", turmaService.listarTodos());
+            model.addAttribute("disciplinas", disciplinaService.listarTodos());
+            model.addAttribute("turmaId", turmaId);
+            model.addAttribute("disciplinaId", disciplinaId);
+            model.addAttribute("bimestre", bimestre);
+            model.addAttribute("data", data);
+            return "prova/lista";
+        } catch (Exception e) {
+            System.err.println("ERRO ao listar provas: " + e.getMessage());
+            e.printStackTrace();
+            model.addAttribute("errotitulo", "Erro ao listar provas");
+            model.addAttribute("erro", e.getMessage());
+
+            model.addAttribute("turmas", turmaService.listarTodos());
+            model.addAttribute("disciplinas", disciplinaService.listarTodos());
+            // Para garantir que a página de listar seja carregada, mesmo com erro
+            return "prova/lista";
+        }
     }
 
     @GetMapping("remover/{id}")

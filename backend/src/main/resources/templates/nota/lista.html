@@ -16,19 +16,19 @@
             <th>Aluno</th>
             <th>Turma</th>
             <th>Disciplina</th>
-            <th>Prova</th>
-            <th>Data</th>
-            <th>Nota</th>
+            <th>1º Bimestre</th>
+            <th>2º Bimestre</th>
+            <th>Média</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="nota : ${notas}">
             <td th:text="${nota.nomeAluno}"></td>
-            <td th:text="${nota.turma}"></td>
-            <td th:text="${nota.disciplina}"></td>
-            <td th:text="${nota.tituloProva}"></td>
-            <td th:text="${nota.dataProva}"></td>
-            <td th:text="${#numbers.formatDecimal(nota.nota, 0, 2)}"></td>
+            <td th:text="${nota.nomeTurma}"></td>
+            <td th:text="${nota.nomeDisciplina}"></td>
+            <td th:text="${nota.notaPrimeiroBimestre != null ? #numbers.formatDecimal(nota.notaPrimeiroBimestre, 0, 2) : '-'}"></td>
+            <td th:text="${nota.notaSegundoBimestre != null ? #numbers.formatDecimal(nota.notaSegundoBimestre, 0, 2) : '-'}"></td>
+            <td th:text="${nota.mediaFinal != null ? #numbers.formatDecimal(nota.mediaFinal, 0, 2) : '-'}"></td>
         </tr>
         <tr th:if="${#lists.isEmpty(notas)}">
             <td colspan="6" class="text-center text-muted">Nenhuma nota encontrada.</td>

@@ -48,7 +48,6 @@ public class DisciplinaController {
         }
     }
 
-    // Método listar modificado para aceitar filtros
     @GetMapping("listar")
     public String listar(
             @RequestParam(name = "filtroNome", required = false) String filtroNome,
@@ -73,7 +72,6 @@ public class DisciplinaController {
         model.addAttribute("disciplinas", disciplinas);
         model.addAttribute("professores", professores);
 
-        // Valores atuais dos filtros para manter no formulário
         model.addAttribute("filtroNome", filtroNome);
         model.addAttribute("filtroProfessor", filtroProfessor);
 
@@ -82,7 +80,9 @@ public class DisciplinaController {
 
     @GetMapping("editar/{id}")
     public String editar(@PathVariable Long id, Model model) {
-        var disciplina = disciplinaService.buscarPorId(id);
+        var disciplina = disciplinaService.buscarPorId(id)
+                .orElseThrow(() -> new IllegalArgumentException("Disciplina não encontrada com ID: " + id));
+
         DisciplinaDTO dto = modelMapper.map(disciplina, DisciplinaDTO.class);
 
         if (disciplina.getProfessor() != null) {

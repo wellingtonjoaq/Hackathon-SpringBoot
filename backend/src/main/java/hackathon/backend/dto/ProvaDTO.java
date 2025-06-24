@@ -14,9 +14,11 @@ public class ProvaDTO {
     private LocalDate data;
     private Long turmaId;
     private Long disciplinaId;
+    private String bimestre;
 
     private String nomeTurma;
     private String nomeDisciplina;
 
     private List<GabaritoDTO> gabarito;
+
 }

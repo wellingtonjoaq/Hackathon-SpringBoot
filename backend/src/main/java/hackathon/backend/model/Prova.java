@@ -1,6 +1,5 @@
 package hackathon.backend.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -36,4 +35,9 @@ public class Prova {
 
     @OneToMany(mappedBy = "prova", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProvaGabarito> gabarito;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Bimestre bimestre;
+
 }

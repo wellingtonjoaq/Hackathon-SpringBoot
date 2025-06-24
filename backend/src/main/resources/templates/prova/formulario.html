@@ -23,6 +23,11 @@
         <p th:text="${erro}"></p>
     </div>
 
+    <div th:if="${erroBimestre}" class="alert alert-danger" role="alert">
+        <h4 class="alert-heading" th:text="${erroBimestre}"></h4>
+        <p th:text="${mensagemErroBimestre}"></p>
+    </div>
+
     <form th:action="@{/prova/salvar}" method="post">
 
         <input type="hidden" name="id" th:value="${provaDTO.id}"/>
@@ -42,8 +47,7 @@
         </div>
 
         <div class="row mb-4">
-            <div class="col-md-6">
-                <label for="turmaId" class="form-label">Turma</label>
+            <div class="col-md-4"> <label for="turmaId" class="form-label">Turma</label>
                 <select class="form-select" id="turmaId" name="turmaId" required>
                     <option value="">Selecione uma turma</option>
                     <option th:each="turma : ${turmas}"
@@ -53,8 +57,7 @@
                     </option>
                 </select>
             </div>
-            <div class="col-md-6">
-                <label for="disciplinaId" class="form-label">Disciplina</label>
+            <div class="col-md-4"> <label for="disciplinaId" class="form-label">Disciplina</label>
                 <select class="form-select" id="disciplinaId" name="disciplinaId" required>
                     <option value="">Selecione uma disciplina</option>
                     <option th:each="disc : ${disciplinas}"
@@ -62,6 +65,13 @@
                             th:text="${disc.nome}"
                             th:selected="${disc.id} == ${provaDTO.disciplinaId}">
                     </option>
+                </select>
+            </div>
+            <div class="col-md-4"> <label for="bimestre" class="form-label">Bimestre</label>
+                <select class="form-select" id="bimestre" name="bimestre" required>
+                    <option value="">Selecione o Bimestre</option>
+                    <option value="PRIMEIRO" th:selected="${provaDTO.bimestre == 'PRIMEIRO'}">1º Bimestre</option>
+                    <option value="SEGUNDO" th:selected="${provaDTO.bimestre == 'SEGUNDO'}">2º Bimestre</option>
                 </select>
             </div>
         </div>

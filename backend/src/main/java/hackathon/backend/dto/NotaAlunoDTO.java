@@ -4,10 +4,12 @@ import lombok.Data;
 
 @Data
 public class NotaAlunoDTO {
+    private Long alunoId;
     private String nomeAluno;
-    private String turma;
-    private String tituloProva;
-    private String disciplina;
-    private String dataProva;
-    private Double nota;
+    private Long turmaId;
+    private String nomeTurma;
+    private String nomeDisciplina;
+    private Double notaPrimeiroBimestre;
+    private Double notaSegundoBimestre;
+    private Double mediaFinal;
 }

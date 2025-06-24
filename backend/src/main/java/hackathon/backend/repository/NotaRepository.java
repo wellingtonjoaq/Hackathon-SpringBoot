@@ -10,11 +10,15 @@ import java.util.List;
 public interface NotaRepository extends JpaRepository<RespostaAluno, Long> {
 
     @Query("""
-            SELECT r 
-            FROM RespostaAluno r
-            JOIN r.prova p
-            JOIN p.disciplina d
+            SELECT ra
+            FROM RespostaAluno ra
+            JOIN FETCH ra.aluno a
+            JOIN FETCH ra.prova p
+            JOIN FETCH p.disciplina d
+            JOIN FETCH p.turma t
             WHERE d.professor.id = :professorId
+            ORDER BY a.nome, t.nome, d.nome, p.bimestre
             """)
-    List<RespostaAluno> buscarNotasPorProfessor(@Param("professorId") Long professorId);
+    List<RespostaAluno> buscarTodasNotasComDetalhesPorProfessor(@Param("professorId") Long professorId);
+
 }
