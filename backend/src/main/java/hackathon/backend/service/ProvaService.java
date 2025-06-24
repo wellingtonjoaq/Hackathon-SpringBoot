@@ -2,10 +2,7 @@ package hackathon.backend.service;
 
 import hackathon.backend.dto.GabaritoDTO;
 import hackathon.backend.dto.ProvaDTO;
-import hackathon.backend.model.Disciplina;
-import hackathon.backend.model.Prova;
-import hackathon.backend.model.ProvaGabarito;
-import hackathon.backend.model.Turma;
+import hackathon.backend.model.*;
 import hackathon.backend.repository.DisciplinaRepository;
 import hackathon.backend.repository.ProvaRepository;
 import hackathon.backend.repository.TurmaRepository;
@@ -19,7 +16,6 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import hackathon.backend.model.Bimestre;
 
 
 @Service
@@ -36,6 +32,9 @@ public class ProvaService {
     @Autowired
     private DisciplinaRepository disciplinaRepository;
 
+    @Autowired
+    private UsuarioService usuarioService;
+
     @Transactional
     public void salvarProvaComGabarito(ProvaDTO dto) {
         logger.debug("DTO.getId() on entry: {}", dto.getId());
@@ -44,6 +43,17 @@ public class ProvaService {
                 .orElseThrow(() -> new RuntimeException("Turma não encontrada com ID: " + dto.getTurmaId()));
         Disciplina disciplina = disciplinaRepository.findById(dto.getDisciplinaId())
                 .orElseThrow(() -> new RuntimeException("Disciplina não encontrada com ID: " + dto.getDisciplinaId()));
+
+        List<Prova> provasExistentes;
+        if (dto.getId() == null) {
+            provasExistentes = buscarPorDisciplinaTurmaEBimestre(disciplina.getId(), turma.getId(), Bimestre.valueOf(dto.getBimestre()));
+        } else {
+            provasExistentes = buscarPorDisciplinaTurmaEBimestreExcetoId(disciplina.getId(), turma.getId(), Bimestre.valueOf(dto.getBimestre()), dto.getId());
+        }
+
+        if (!provasExistentes.isEmpty()) {
+            throw new IllegalArgumentException("Já existe uma prova cadastrada para esta disciplina e bimestre nesta turma.");
+        }
 
         Prova prova;
         if (dto.getId() != null) {
@@ -61,28 +71,30 @@ public class ProvaService {
         prova.setDisciplina(disciplina);
         prova.setBimestre(Bimestre.valueOf(dto.getBimestre()));
 
-        List<ProvaGabarito> novosGabaritos = new ArrayList<>();
-        if (dto.getGabarito() != null) {
-            for (GabaritoDTO gDto : dto.getGabarito()) {
-                ProvaGabarito gab = new ProvaGabarito();
-                gab.setProva(prova);
-                gab.setNumeroQuestao(gDto.getNumeroQuestao());
-                gab.setRespostaCorreta(gDto.getRespostaCorreta());
-                novosGabaritos.add(gab);
-            }
-        }
-
         if (prova.getGabarito() != null) {
             prova.getGabarito().clear();
         } else {
-            prova.setGabarito(new ArrayList<>());
+            // If the collection is null (shouldn't happen with proper entity init), initialize it.
+            prova.setGabarito(new ArrayList<>()); // Change to new HashSet<>() if using Set
         }
-        prova.getGabarito().addAll(novosGabaritos);
+
+        if (dto.getGabarito() != null) {
+            // Create new ProvaGabarito instances from DTOs and link them to the Prova
+            for (GabaritoDTO gabaritoDTO : dto.getGabarito()) {
+                ProvaGabarito provaGabarito = new ProvaGabarito();
+                provaGabarito.setNumeroQuestao(gabaritoDTO.getNumeroQuestao());
+                provaGabarito.setRespostaCorreta(gabaritoDTO.getRespostaCorreta());
+                provaGabarito.setProva(prova); // IMPORTANT: Set the bidirectional relationship
+                prova.getGabarito().add(provaGabarito);
+            }
+        }
+        // --- END OF FIX ---
 
         logger.debug("Prova object BEFORE save. ID: {}, Title: {}", prova.getId(), prova.getTitulo());
-        provaRepository.save(prova);
+        provaRepository.save(prova); // This save operation will now manage gabaritos correctly
         logger.debug("Prova object AFTER save. Final ID: {}", prova.getId());
     }
+
 
     @Transactional
     public void salvar(Prova prova) {
@@ -107,7 +119,17 @@ public class ProvaService {
                 System.err.println("Bimestre inválido recebido: " + bimestreString);
             }
         }
-        return provaRepository.buscarPorFiltros(turmaId, disciplinaId, bimestreEnum, data);
+
+        Long professorId = null;
+        if (usuarioService.getUsuarioLogado() != null && usuarioService.getUsuarioLogado().getPerfil() == Perfil.PROFESSOR) {
+            professorId = usuarioService.getUsuarioLogado().getId();
+        }
+
+        if (professorId != null) {
+            return provaRepository.buscarProvasDoProfessor(professorId, turmaId, disciplinaId, bimestreEnum, data);
+        } else {
+            return provaRepository.buscarPorFiltros(turmaId, disciplinaId, bimestreEnum, data);
+        }
     }
 
     public List<Prova> buscarPorDisciplinaTurmaEBimestre(Long disciplinaId, Long turmaId, Bimestre bimestre) {

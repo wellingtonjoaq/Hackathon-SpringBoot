@@ -24,4 +24,21 @@ public interface RespostaAlunoRepository extends JpaRepository<RespostaAluno, Lo
             ORDER BY p.data DESC, p.titulo ASC
             """)
     List<RespostaAluno> findByAlunoId(@Param("alunoId") Long alunoId);
+
+    @Query("""
+            SELECT ra
+            FROM RespostaAluno ra
+            JOIN FETCH ra.aluno a
+            JOIN FETCH ra.prova p
+            JOIN FETCH p.disciplina d
+            JOIN FETCH p.turma t
+            LEFT JOIN FETCH p.gabarito g
+            WHERE d.professor.id = :professorId
+            AND (:alunoId IS NULL OR a.id = :alunoId)
+            AND (:provaId IS NULL OR p.id = :provaId)
+            ORDER BY p.data DESC, p.titulo ASC
+            """)
+    List<RespostaAluno> findByProfessorIdAndFilters(@Param("professorId") Long professorId,
+                                                    @Param("alunoId") Long alunoId,
+                                                    @Param("provaId") Long provaId);
 }

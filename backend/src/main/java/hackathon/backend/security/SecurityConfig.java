@@ -49,11 +49,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(
                                 "/css/**", "/js/**", "/images/**", "/login", "/error",
-                                "/api/login", // rota para login da API (Flutter)
-                                "/api/**"     // outras rotas da API públicas (ajuste conforme necessário)
+                                "/api/login",
+                                "/api/**"
                         ).permitAll()
                         .requestMatchers("/usuario/**", "/turma/**", "/disciplina/**").hasRole("ADMINISTRADOR")
-                        .requestMatchers("/prova/**", "/resposta/**", "/nota/**").hasRole("PROFESSOR")
+                        .requestMatchers("/prova/**", "/resposta/**", "/notas/**").hasRole("PROFESSOR")
                         .requestMatchers("/aluno/**").hasRole("ALUNO")
                         .anyRequest().authenticated()
                 )
@@ -67,7 +67,7 @@ public class SecurityConfig {
                         .logoutSuccessUrl("/login?logout")
                         .permitAll()
                 )
-                .csrf(csrf -> csrf.disable()); // CSRF desativado para uso com Flutter e APIs
+                .csrf(csrf -> csrf.disable());
 
         return http.build();
     }
@@ -81,7 +81,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("*")); // Em produção, usar domínios específicos
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
