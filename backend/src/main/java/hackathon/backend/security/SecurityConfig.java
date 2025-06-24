@@ -53,7 +53,8 @@ public class SecurityConfig {
                                 "/api/**"     // outras rotas da API públicas (ajuste conforme necessário)
                         ).permitAll()
                         .requestMatchers("/usuario/**", "/turma/**", "/disciplina/**").hasRole("ADMINISTRADOR")
-                        .requestMatchers("/prova/**").hasRole("PROFESSOR")
+                        .requestMatchers("/prova/**", "/resposta/**", "/nota/**").hasRole("PROFESSOR")
+                        .requestMatchers("/aluno/**").hasRole("ALUNO")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

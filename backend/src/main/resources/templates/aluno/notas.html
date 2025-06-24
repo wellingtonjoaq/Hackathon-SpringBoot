@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="~{index :: head}">
+  <meta charset="UTF-8">
+  <title>Minhas Notas</title>
+</head>
+<body>
+<div class="container mt-5 pt-4">
+  <div th:insert="~{index :: menu}"></div>
+
+  <h2 class="mb-4">Minhas Notas</h2>
+
+  <table class="table table-bordered">
+    <thead class="table-dark">
+    <tr>
+      <th>Prova</th>
+      <th>Disciplina</th>
+      <th>Turma</th>
+      <th>Bimestre</th>
+      <th>Data</th>
+      <th>Nota Obtida</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="nota : ${notas}">
+      <td th:text="${nota.tituloProva}"></td>
+      <td th:text="${nota.nomeDisciplina}"></td>
+      <td th:text="${nota.nomeTurma}"></td>
+      <td th:text="${nota.bimestre}"></td>
+      <td th:text="${nota.dataProva}"></td>
+      <td th:text="${#numbers.formatDecimal(nota.notaObtida, 0, 2)}"></td>
+    </tr>
+    <tr th:if="${#lists.isEmpty(notas)}">
+      <td colspan="6" class="text-center text-muted">Nenhuma nota encontrada.</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-info mt-4" role="alert" th:if="${mediaNotas != null}">
+    <strong>Média Geral das Notas:</strong> <span th:text="${#numbers.formatDecimal(mediaNotas, 0, 2)}"></span>
+  </div>
+  <div class="alert alert-info mt-4" role="alert" th:if="${mediaNotas == null and not #lists.isEmpty(notas)}">
+    Não foi possível calcular a média.
+  </div>
+  <div class="alert alert-info mt-4" role="alert" th:if="${#lists.isEmpty(notas)}">
+    Não há notas para calcular a média.
+  </div>
+
+</div>
+<div th:insert="~{index :: script}"></div>
+</body>
+</html>
