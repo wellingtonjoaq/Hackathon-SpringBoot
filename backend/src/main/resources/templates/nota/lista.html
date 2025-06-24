@@ -10,6 +10,38 @@
 
     <h2 class="mb-4">Consulta de Notas dos Alunos</h2>
 
+    <!-- Formulário de Filtro -->
+    <form th:action="@{/nota/listar}" method="get" class="row g-3 mb-4">
+        <div class="col-md-5">
+            <label for="filtroTurma" class="form-label">Filtrar por Turma</label>
+            <select id="filtroTurma" name="filtroTurma" class="form-select">
+                <option value="">Todas as turmas</option>
+                <option th:each="turma : ${turmas}"
+                        th:value="${turma}"
+                        th:text="${turma}"
+                        th:selected="${filtroTurma == turma}">
+                </option>
+            </select>
+        </div>
+
+        <div class="col-md-5">
+            <label for="filtroDisciplina" class="form-label">Filtrar por Disciplina</label>
+            <select id="filtroDisciplina" name="filtroDisciplina" class="form-select">
+                <option value="">Todas as disciplinas</option>
+                <option th:each="disc : ${disciplinas}"
+                        th:value="${disc}"
+                        th:text="${disc}"
+                        th:selected="${filtroDisciplina == disc}">
+                </option>
+            </select>
+        </div>
+
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-dark w-100">Filtrar</button>
+        </div>
+    </form>
+
+    <!-- Tabela -->
     <table class="table table-bordered">
         <thead class="table-dark">
         <tr>

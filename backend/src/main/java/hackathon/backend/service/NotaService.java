@@ -7,11 +7,7 @@ import hackathon.backend.repository.NotaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import java.util.*;
 
 @Service
 public class NotaService {
@@ -19,22 +15,33 @@ public class NotaService {
     @Autowired
     private NotaRepository repository;
 
-    public List<NotaAlunoDTO> listarNotasPorProfessor(Long professorId) {
+    public List<NotaAlunoDTO> listarNotasFiltradas(Long professorId, String filtroTurma, String filtroDisciplina) {
         List<RespostaAluno> respostas = repository.buscarTodasNotasComDetalhesPorProfessor(professorId);
 
         Map<String, NotaAlunoDTO> notasAgrupadas = new HashMap<>();
 
         for (RespostaAluno r : respostas) {
-            String key = r.getAluno().getId() + "-" + r.getProva().getTurma().getId() + "-" + r.getProva().getDisciplina().getId();
+            String turmaNome = r.getProva().getTurma().getNome();
+            String disciplinaNome = r.getProva().getDisciplina().getNome();
 
+            // Aplica os filtros se houver
+            if (filtroTurma != null && !filtroTurma.isBlank() && !turmaNome.equalsIgnoreCase(filtroTurma)) {
+                continue;
+            }
+            if (filtroDisciplina != null && !filtroDisciplina.isBlank() && !disciplinaNome.equalsIgnoreCase(filtroDisciplina)) {
+                continue;
+            }
+
+            String key = r.getAluno().getId() + "-" + r.getProva().getTurma().getId() + "-" + r.getProva().getDisciplina().getId();
             NotaAlunoDTO dto = notasAgrupadas.get(key);
+
             if (dto == null) {
                 dto = new NotaAlunoDTO();
                 dto.setAlunoId(r.getAluno().getId());
                 dto.setNomeAluno(r.getAluno().getNome());
                 dto.setTurmaId(r.getProva().getTurma().getId());
-                dto.setNomeTurma(r.getProva().getTurma().getNome());
-                dto.setNomeDisciplina(r.getProva().getDisciplina().getNome());
+                dto.setNomeTurma(turmaNome);
+                dto.setNomeDisciplina(disciplinaNome);
                 notasAgrupadas.put(key, dto);
             }
 
@@ -63,5 +70,23 @@ public class NotaService {
         }
 
         return resultadosFinais;
+    }
+
+    public List<String> listarTurmasDoProfessor(Long professorId) {
+        List<RespostaAluno> respostas = repository.buscarTodasNotasComDetalhesPorProfessor(professorId);
+        Set<String> turmas = new TreeSet<>();
+        for (RespostaAluno r : respostas) {
+            turmas.add(r.getProva().getTurma().getNome());
+        }
+        return new ArrayList<>(turmas);
+    }
+
+    public List<String> listarDisciplinasDoProfessor(Long professorId) {
+        List<RespostaAluno> respostas = repository.buscarTodasNotasComDetalhesPorProfessor(professorId);
+        Set<String> disciplinas = new TreeSet<>();
+        for (RespostaAluno r : respostas) {
+            disciplinas.add(r.getProva().getDisciplina().getNome());
+        }
+        return new ArrayList<>(disciplinas);
     }
 }
