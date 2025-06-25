@@ -54,7 +54,6 @@ public class TurmaController {
                 .map(t -> modelMapper.map(t, TurmaDTO.class))
                 .collect(Collectors.toList());
 
-        // Busca todos os períodos e cursos distintos para popular os <selects>
         var periodos = turmaService.buscarPeriodos();
         var cursos = turmaService.buscarCursos();
 
