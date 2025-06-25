@@ -193,14 +193,21 @@ public class ProvaController {
 
             model.addAttribute("turmas", turmaService.listarTodos());
             model.addAttribute("disciplinas", disciplinaService.listarTodos());
-            // Para garantir que a página de listar seja carregada, mesmo com erro
             return "prova/lista";
         }
     }
 
     @GetMapping("remover/{id}")
-    public String remover(@PathVariable Long id) {
-        provaService.deletarPorId(id);
+    public String remover(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            provaService.deletarPorId(id);
+            redirectAttributes.addFlashAttribute("mensagemSucesso", "Prova removida com sucesso!");
+        } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("mensagemErro", e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("mensagemErro", "Ocorreu um erro ao tentar remover a prova.");
+        }
         return "redirect:/prova/listar";
     }
 }

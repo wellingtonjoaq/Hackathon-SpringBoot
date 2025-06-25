@@ -3,15 +3,19 @@ package hackathon.backend.controller;
 import hackathon.backend.dto.RespostaAlunoDTO;
 import hackathon.backend.dto.RespostaAlunoDetalheDTO;
 import hackathon.backend.model.Perfil;
+import hackathon.backend.service.DisciplinaService;
 import hackathon.backend.service.ProvaService;
 import hackathon.backend.service.RespostaAlunoService;
+import hackathon.backend.service.TurmaService;
 import hackathon.backend.service.UsuarioService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -28,6 +32,12 @@ public class RespostaAlunoController {
 
     @Autowired
     private ProvaService provaService;
+
+    @Autowired
+    private DisciplinaService disciplinaService;
+
+    @Autowired
+    private TurmaService turmaService;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -133,21 +143,26 @@ public class RespostaAlunoController {
 
     @GetMapping("listar")
     public String listar(
-            @RequestParam(required = false) Long alunoId,
-            @RequestParam(required = false) Long provaId,
+            @RequestParam(required = false) Long turmaId,
+            @RequestParam(required = false) Long disciplinaId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataProva,
             Model model) {
 
-        var respostas = respostaAlunoService.listarPorFiltros(alunoId, provaId)
+        var respostas = respostaAlunoService.listarPorFiltros(turmaId, disciplinaId, dataProva)
                 .stream()
                 .map(r -> {
                     var dto = modelMapper.map(r, RespostaAlunoDTO.class);
 
-                    // Adicionando os nomes para exibir na tabela
                     if (r.getAluno() != null) {
                         dto.setAlunoNome(r.getAluno().getNome());
                     }
                     if (r.getProva() != null) {
                         dto.setProvaTitulo(r.getProva().getTitulo());
+
+                        dto.setProvaData(r.getProva().getData());
+                    }
+
+                    if (r.getProva() != null && r.getProva().getData() != null) {
                     }
 
                     return dto;
@@ -155,8 +170,9 @@ public class RespostaAlunoController {
                 .collect(Collectors.toList());
 
         model.addAttribute("respostas", respostas);
-        model.addAttribute("alunoId", alunoId);
-        model.addAttribute("provaId", provaId);
+        model.addAttribute("turmaId", turmaId);
+        model.addAttribute("disciplinaId", disciplinaId);
+        model.addAttribute("dataProva", dataProva);
 
         var alunos = usuarioService.listarTodos()
                 .stream()
@@ -165,10 +181,11 @@ public class RespostaAlunoController {
         model.addAttribute("alunos", alunos);
 
         model.addAttribute("provas", provaService.listarTodos());
+        model.addAttribute("turmas", turmaService.listarTodos());
+        model.addAttribute("disciplinas", disciplinaService.listarTodos());
 
         return "resposta/lista";
     }
-
 
     @GetMapping("remover/{id}")
     public String remover(@PathVariable Long id) {

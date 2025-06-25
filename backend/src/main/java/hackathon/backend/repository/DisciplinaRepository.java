@@ -9,6 +9,10 @@ import java.util.List;
 
 public interface DisciplinaRepository extends JpaRepository<Disciplina, Long> {
 
+    Disciplina findByNome(String nome);
+
+    List<Disciplina> findByProfessorId(Long professorId);
+
     @Query("SELECT d FROM Disciplina d " +
             "LEFT JOIN d.professor p " +
             "WHERE (:nome IS NULL OR LOWER(d.nome) LIKE LOWER(CONCAT('%', :nome, '%'))) " +

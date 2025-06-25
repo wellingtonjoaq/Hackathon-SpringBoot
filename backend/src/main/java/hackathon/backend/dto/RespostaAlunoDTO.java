@@ -1,6 +1,8 @@
 package hackathon.backend.dto;
 
 import lombok.Data;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -17,5 +19,6 @@ public class RespostaAlunoDTO {
     private String action;
     private String alunoNome;
     private String provaTitulo;
+    private LocalDate provaData;
 
 }

@@ -2,12 +2,18 @@ package hackathon.backend.service;
 
 import hackathon.backend.dto.NotaAlunoDTO;
 import hackathon.backend.model.Bimestre;
+import hackathon.backend.model.Disciplina;
 import hackathon.backend.model.RespostaAluno;
+import hackathon.backend.model.Turma;
+import hackathon.backend.repository.DisciplinaRepository;
 import hackathon.backend.repository.NotaRepository;
+import hackathon.backend.repository.TurmaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class NotaService {
@@ -15,22 +21,36 @@ public class NotaService {
     @Autowired
     private NotaRepository repository;
 
-    public List<NotaAlunoDTO> listarNotasFiltradas(Long professorId, String filtroTurma, String filtroDisciplina) {
-        List<RespostaAluno> respostas = repository.buscarTodasNotasComDetalhesPorProfessor(professorId);
+    @Autowired
+    private TurmaRepository turmaRepository; // Necessário para buscar Turma por nome
+
+    @Autowired
+    private DisciplinaRepository disciplinaRepository; // Necessário para buscar Disciplina por nome
+
+    public List<NotaAlunoDTO> listarNotasFiltradas(Long professorId, String filtroTurmaNome, String filtroDisciplinaNome, LocalDate dataProva) {
+        Long turmaId = null;
+        if (filtroTurmaNome != null && !filtroTurmaNome.isBlank()) {
+            Turma turma = turmaRepository.findByNome(filtroTurmaNome);
+            if (turma != null) {
+                turmaId = turma.getId();
+            }
+        }
+
+        Long disciplinaId = null;
+        if (filtroDisciplinaNome != null && !filtroDisciplinaNome.isBlank()) {
+            Disciplina disciplina = disciplinaRepository.findByNome(filtroDisciplinaNome);
+            if (disciplina != null) {
+                disciplinaId = disciplina.getId();
+            }
+        }
+
+        List<RespostaAluno> respostas = repository.buscarNotasFiltradasPorProfessor(professorId, turmaId, disciplinaId, dataProva);
 
         Map<String, NotaAlunoDTO> notasAgrupadas = new HashMap<>();
 
         for (RespostaAluno r : respostas) {
             String turmaNome = r.getProva().getTurma().getNome();
             String disciplinaNome = r.getProva().getDisciplina().getNome();
-
-            // Aplica os filtros se houver
-            if (filtroTurma != null && !filtroTurma.isBlank() && !turmaNome.equalsIgnoreCase(filtroTurma)) {
-                continue;
-            }
-            if (filtroDisciplina != null && !filtroDisciplina.isBlank() && !disciplinaNome.equalsIgnoreCase(filtroDisciplina)) {
-                continue;
-            }
 
             String key = r.getAluno().getId() + "-" + r.getProva().getTurma().getId() + "-" + r.getProva().getDisciplina().getId();
             NotaAlunoDTO dto = notasAgrupadas.get(key);
@@ -73,20 +93,16 @@ public class NotaService {
     }
 
     public List<String> listarTurmasDoProfessor(Long professorId) {
-        List<RespostaAluno> respostas = repository.buscarTodasNotasComDetalhesPorProfessor(professorId);
-        Set<String> turmas = new TreeSet<>();
-        for (RespostaAluno r : respostas) {
-            turmas.add(r.getProva().getTurma().getNome());
-        }
-        return new ArrayList<>(turmas);
+        return repository.findDistinctTurmasByProfessorId(professorId)
+                .stream()
+                .map(Turma::getNome)
+                .collect(Collectors.toList());
     }
 
     public List<String> listarDisciplinasDoProfessor(Long professorId) {
-        List<RespostaAluno> respostas = repository.buscarTodasNotasComDetalhesPorProfessor(professorId);
-        Set<String> disciplinas = new TreeSet<>();
-        for (RespostaAluno r : respostas) {
-            disciplinas.add(r.getProva().getDisciplina().getNome());
-        }
-        return new ArrayList<>(disciplinas);
+        return repository.findDistinctDisciplinasByProfessorId(professorId)
+                .stream()
+                .map(Disciplina::getNome)
+                .collect(Collectors.toList());
     }
 }

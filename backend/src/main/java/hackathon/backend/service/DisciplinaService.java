@@ -1,6 +1,7 @@
 package hackathon.backend.service;
 
 import hackathon.backend.model.Disciplina;
+import hackathon.backend.model.Perfil;
 import hackathon.backend.repository.DisciplinaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,13 +16,25 @@ public class DisciplinaService {
     @Autowired
     private DisciplinaRepository repository;
 
+    @Autowired
+    private DisciplinaRepository disciplinaRepository;
+
+    @Autowired
+    private UsuarioService usuarioService;
+
     @Transactional
     public void salvar(Disciplina disciplina) {
         repository.save(disciplina);
     }
 
     public List<Disciplina> listarTodos() {
-        return repository.findAll();
+        var usuarioLogado = usuarioService.getUsuarioLogado();
+
+        if (usuarioLogado != null && usuarioLogado.getPerfil() == Perfil.PROFESSOR) {
+            return disciplinaRepository.findByProfessorId(usuarioLogado.getId());
+        } else {
+            return disciplinaRepository.findAll();
+        }
     }
 
     public Optional<Disciplina> buscarPorId(Long id) {

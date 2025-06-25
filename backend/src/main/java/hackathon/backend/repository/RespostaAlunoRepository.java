@@ -6,11 +6,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
 public interface RespostaAlunoRepository extends JpaRepository<RespostaAluno, Long> {
-    boolean existsByProvaId(Long provaId);
+
+    long countByProvaId(Long provaId);
 
     @Query("""
             SELECT ra
@@ -34,11 +36,13 @@ public interface RespostaAlunoRepository extends JpaRepository<RespostaAluno, Lo
             JOIN FETCH p.turma t
             LEFT JOIN FETCH p.gabarito g
             WHERE d.professor.id = :professorId
-            AND (:alunoId IS NULL OR a.id = :alunoId)
-            AND (:provaId IS NULL OR p.id = :provaId)
+            AND (:turmaId IS NULL OR t.id = :turmaId)
+            AND (:disciplinaId IS NULL OR d.id = :disciplinaId)
+            AND (:dataProva IS NULL OR p.data = :dataProva)
             ORDER BY p.data DESC, p.titulo ASC
             """)
     List<RespostaAluno> findByProfessorIdAndFilters(@Param("professorId") Long professorId,
-                                                    @Param("alunoId") Long alunoId,
-                                                    @Param("provaId") Long provaId);
+                                                    @Param("turmaId") Long turmaId,
+                                                    @Param("disciplinaId") Long disciplinaId,
+                                                    @Param("dataProva") LocalDate dataProva);
 }

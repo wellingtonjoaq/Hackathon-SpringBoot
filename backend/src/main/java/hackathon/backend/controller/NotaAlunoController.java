@@ -29,6 +29,7 @@ public class NotaAlunoController {
         }
 
         model.addAttribute("notas", notaAlunoService.listarNotasDoAluno(usuarioLogado.getId()));
+        model.addAttribute("mediaNotas", notaAlunoService.calcularMediaNotasDoAluno(usuarioLogado.getId()));
         return "aluno/notas";
     }
 }

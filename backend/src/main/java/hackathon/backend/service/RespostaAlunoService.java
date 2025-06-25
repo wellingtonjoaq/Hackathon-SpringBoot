@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -78,7 +79,7 @@ public class RespostaAlunoService {
                 }
                 respostaAluno.getDetalhes().add(detalhe);
             }
-            notaCalculada = (double) questoesCorretas / prova.getGabarito().size() * 10.0; // Assume nota de 0 a 10
+            notaCalculada = (double) questoesCorretas / prova.getGabarito().size() * 10.0;
         }
         respostaAluno.setNota(notaCalculada);
         repository.save(respostaAluno);
@@ -127,31 +128,26 @@ public class RespostaAlunoService {
         return repository.findAll();
     }
 
-    public List<RespostaAluno> listarPorFiltros(Long alunoId, Long provaId) {
-        // Obtém o usuário logado
+    public List<RespostaAluno> listarPorFiltros(Long turmaId, Long disciplinaId, LocalDate dataProva) {
         Long professorId = null;
         if (usuarioService.getUsuarioLogado() != null && usuarioService.getUsuarioLogado().getPerfil() == Perfil.PROFESSOR) {
             professorId = usuarioService.getUsuarioLogado().getId();
         }
 
         if (professorId != null) {
-            return repository.findByProfessorIdAndFilters(professorId, alunoId, provaId);
+            return repository.findByProfessorIdAndFilters(professorId, turmaId, disciplinaId, dataProva);
         } else {
-            if (alunoId != null && provaId != null) {
-                return repository.findAll().stream()
-                        .filter(ra -> ra.getAluno().getId().equals(alunoId) && ra.getProva().getId().equals(provaId))
-                        .collect(Collectors.toList());
-            } else if (alunoId != null) {
-                return repository.findAll().stream()
-                        .filter(ra -> ra.getAluno().getId().equals(alunoId))
-                        .collect(Collectors.toList());
-            } else if (provaId != null) {
-                return repository.findAll().stream()
-                        .filter(ra -> ra.getProva().getId().equals(provaId))
-                        .collect(Collectors.toList());
-            } else {
-                return repository.findAll();
-            }
+            List<RespostaAluno> respostas = repository.findAll();
+
+            return respostas.stream()
+                    .filter(ra -> {
+                        boolean passaTurma = (turmaId == null || (ra.getProva().getTurma() != null && ra.getProva().getTurma().getId().equals(turmaId)));
+                        boolean passaDisciplina = (disciplinaId == null || (ra.getProva().getDisciplina() != null && ra.getProva().getDisciplina().getId().equals(disciplinaId)));
+                        boolean passaData = (dataProva == null || (ra.getProva().getData() != null && ra.getProva().getData().isEqual(dataProva)));
+
+                        return passaTurma && passaDisciplina && passaData;
+                    })
+                    .collect(Collectors.toList());
         }
     }
 }

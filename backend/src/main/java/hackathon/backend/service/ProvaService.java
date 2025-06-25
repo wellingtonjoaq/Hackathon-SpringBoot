@@ -5,6 +5,7 @@ import hackathon.backend.dto.ProvaDTO;
 import hackathon.backend.model.*;
 import hackathon.backend.repository.DisciplinaRepository;
 import hackathon.backend.repository.ProvaRepository;
+import hackathon.backend.repository.RespostaAlunoRepository;
 import hackathon.backend.repository.TurmaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,9 @@ public class ProvaService {
 
     @Autowired
     private UsuarioService usuarioService;
+
+    @Autowired
+    private RespostaAlunoRepository respostaAlunoRepository;
 
     @Transactional
     public void salvarProvaComGabarito(ProvaDTO dto) {
@@ -65,36 +69,33 @@ public class ProvaService {
             logger.debug("Creating new Prova instance (ID will be null here for new record).");
         }
 
+        if (prova.getGabarito() == null) {
+            prova.setGabarito(new ArrayList<>());
+        }
+
         prova.setTitulo(dto.getTitulo());
         prova.setData(dto.getData());
         prova.setTurma(turma);
         prova.setDisciplina(disciplina);
         prova.setBimestre(Bimestre.valueOf(dto.getBimestre()));
 
-        if (prova.getGabarito() != null) {
-            prova.getGabarito().clear();
-        } else {
-            // If the collection is null (shouldn't happen with proper entity init), initialize it.
-            prova.setGabarito(new ArrayList<>()); // Change to new HashSet<>() if using Set
-        }
+        prova.getGabarito().clear();
+
 
         if (dto.getGabarito() != null) {
-            // Create new ProvaGabarito instances from DTOs and link them to the Prova
             for (GabaritoDTO gabaritoDTO : dto.getGabarito()) {
                 ProvaGabarito provaGabarito = new ProvaGabarito();
                 provaGabarito.setNumeroQuestao(gabaritoDTO.getNumeroQuestao());
                 provaGabarito.setRespostaCorreta(gabaritoDTO.getRespostaCorreta());
-                provaGabarito.setProva(prova); // IMPORTANT: Set the bidirectional relationship
+                provaGabarito.setProva(prova);
                 prova.getGabarito().add(provaGabarito);
             }
         }
-        // --- END OF FIX ---
 
         logger.debug("Prova object BEFORE save. ID: {}, Title: {}", prova.getId(), prova.getTitulo());
-        provaRepository.save(prova); // This save operation will now manage gabaritos correctly
+        provaRepository.save(prova);
         logger.debug("Prova object AFTER save. Final ID: {}", prova.getId());
     }
-
 
     @Transactional
     public void salvar(Prova prova) {
@@ -150,6 +151,10 @@ public class ProvaService {
 
     @Transactional
     public void deletarPorId(Long id) {
+        long count = respostaAlunoRepository.countByProvaId(id);
+        if (count > 0) {
+            throw new IllegalStateException("Não é possível excluir prova já corrigida. Existem " + count + " respostas de alunos associadas.");
+        }
         provaRepository.deleteById(id);
     }
 }
