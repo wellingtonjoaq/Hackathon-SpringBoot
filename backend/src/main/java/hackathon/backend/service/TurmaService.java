@@ -10,14 +10,14 @@ import java.util.List;
 
 @Service
 public class TurmaService {
+    @Transactional
+    public Turma salvar(Turma turma) { // Deve retornar Turma
+        return repository.save(turma);
+    }
 
     @Autowired
     private TurmaRepository repository;
 
-    @Transactional
-    public void salvar(Turma turma) {
-        repository.save(turma);
-    }
 
     public List<Turma> listarTodos() {
         return repository.findAll();
@@ -32,10 +32,13 @@ public class TurmaService {
     }
 
     public List<Turma> buscarComFiltros(String nome, String periodo, String curso) {
+        String nomeFiltro = nome != null ? nome : "";
+        String periodoFiltro = periodo != null ? periodo : "";
+        String cursoFiltro = curso != null ? curso : "";
         return repository.findByNomeContainingIgnoreCaseAndPeriodoContainingIgnoreCaseAndCursoContainingIgnoreCase(
-                nome != null ? nome : "",
-                periodo != null ? periodo : "",
-                curso != null ? curso : ""
+                nomeFiltro,
+                periodoFiltro,
+                cursoFiltro
         );
     }
 
@@ -47,4 +50,3 @@ public class TurmaService {
         return repository.findDistinctCurso();
     }
 }
-

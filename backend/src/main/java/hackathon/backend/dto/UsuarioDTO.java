@@ -15,6 +15,7 @@ public class UsuarioDTO {
     private String senha;
 
     private Perfil perfil;
+    private Long turmaId;
 
     public UsuarioDTO() {}
 

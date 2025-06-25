@@ -1,17 +1,19 @@
 package hackathon.backend.controller;
 
-import hackathon.backend.model.Perfil;
-import hackathon.backend.model.Usuario;
+
 import hackathon.backend.service.FeedbackService;
 import hackathon.backend.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.List;
 
 @Controller
-@RequestMapping("/aluno/feedbacks")
+@RequestMapping("/api/aluno")
 public class FeedbackController {
 
     @Autowired
@@ -20,15 +22,9 @@ public class FeedbackController {
     @Autowired
     private UsuarioService usuarioService;
 
-    @GetMapping
-    public String verFeedbacksAluno(Model model) {
-        Usuario usuarioLogado = usuarioService.getUsuarioLogado();
-
-        if (usuarioLogado == null || usuarioLogado.getPerfil() != Perfil.ALUNO) {
-            return "redirect:/acesso-negado";
-        }
-
-        model.addAttribute("feedbacks", feedbackService.listarFeedbacksDoAluno(usuarioLogado.getId()));
-        return "aluno/feedbacks";
+    @GetMapping("/{alunoId}/feedbacks")
+    @ResponseBody
+    public List<hackathon.backend.dto.FeedbackDTO> getFeedbacksAluno(@PathVariable Long alunoId) {
+        return feedbackService.listarFeedbacksDoAluno(alunoId);
     }
 }

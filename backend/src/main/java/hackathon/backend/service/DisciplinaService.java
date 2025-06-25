@@ -23,9 +23,10 @@ public class DisciplinaService {
     private UsuarioService usuarioService;
 
     @Transactional
-    public void salvar(Disciplina disciplina) {
-        repository.save(disciplina);
+    public Disciplina salvar(Disciplina disciplina) {
+        return repository.save(disciplina);
     }
+
 
     public List<Disciplina> listarTodos() {
         var usuarioLogado = usuarioService.getUsuarioLogado();
