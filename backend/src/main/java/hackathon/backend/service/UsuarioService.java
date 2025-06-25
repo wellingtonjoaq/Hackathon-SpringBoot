@@ -1,4 +1,5 @@
 package hackathon.backend.service;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import hackathon.backend.model.Aluno;
 import hackathon.backend.model.Perfil;
@@ -6,9 +7,7 @@ import hackathon.backend.model.Turma;
 import hackathon.backend.model.Usuario;
 import hackathon.backend.repository.AlunoRepository;
 import hackathon.backend.repository.UsuarioRepository;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -64,4 +63,5 @@ public List<Usuario> listarTodos() {
         return usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado: " + email));
     }
+
 }
