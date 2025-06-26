@@ -1,0 +1,371 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1
+-- Tempo de geração: 26/06/2025 às 00:59
+-- Versão do servidor: 10.4.32-MariaDB
+-- Versão do PHP: 8.2.12
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Banco de dados: `hackathon_db`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `aluno`
+--
+
+CREATE TABLE `aluno` (
+  `id` bigint(20) NOT NULL,
+  `turma_id` bigint(20) NOT NULL,
+  `usuario_id` bigint(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `aluno`
+--
+
+INSERT INTO `aluno` (`id`, `turma_id`, `usuario_id`) VALUES
+(3, 2, 5),
+(5, 3, 15),
+(7, 2, 18);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `disciplina`
+--
+
+CREATE TABLE `disciplina` (
+  `id` bigint(20) NOT NULL,
+  `nome` varchar(255) NOT NULL,
+  `professor_id` bigint(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `disciplina`
+--
+
+INSERT INTO `disciplina` (`id`, `nome`, `professor_id`) VALUES
+(2, 'Sistema Para Internet', 7),
+(4, 'Laravel', 12),
+(6, 'Mais', 12);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `prova`
+--
+
+CREATE TABLE `prova` (
+  `id` bigint(20) NOT NULL,
+  `data` date NOT NULL,
+  `disciplina_id` bigint(20) NOT NULL,
+  `turma_id` bigint(20) NOT NULL,
+  `titulo` varchar(255) DEFAULT NULL,
+  `bimestre` varchar(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `prova`
+--
+
+INSERT INTO `prova` (`id`, `data`, `disciplina_id`, `turma_id`, `titulo`, `bimestre`) VALUES
+(50, '2025-07-15', 2, 2, 'Prova Final Laravel', 'SEGUNDO'),
+(53, '2025-06-26', 2, 2, 'Prova Laravel', 'PRIMEIRO'),
+(60, '2025-06-26', 2, 3, 'Prova', 'PRIMEIRO');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `prova_gabarito`
+--
+
+CREATE TABLE `prova_gabarito` (
+  `id` bigint(20) NOT NULL,
+  `prova_id` bigint(20) NOT NULL,
+  `resposta_correta` varchar(255) DEFAULT NULL,
+  `numero_questao` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `prova_gabarito`
+--
+
+INSERT INTO `prova_gabarito` (`id`, `prova_id`, `resposta_correta`, `numero_questao`) VALUES
+(226, 50, 'A', 1),
+(227, 50, 'A', 2),
+(228, 50, 'A', 3),
+(229, 53, 'A', 1),
+(230, 53, 'A', 2),
+(231, 53, 'B', 3),
+(233, 60, 'A', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `resposta_aluno`
+--
+
+CREATE TABLE `resposta_aluno` (
+  `id` bigint(20) NOT NULL,
+  `aluno_id` bigint(20) NOT NULL,
+  `prova_id` bigint(20) NOT NULL,
+  `nota` double DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `resposta_aluno`
+--
+
+INSERT INTO `resposta_aluno` (`id`, `aluno_id`, `prova_id`, `nota`) VALUES
+(13, 5, 50, 3.333333333333333),
+(14, 5, 53, 3.333333333333333),
+(15, 5, 50, 6.666666666666666);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `resposta_aluno_detalhe`
+--
+
+CREATE TABLE `resposta_aluno_detalhe` (
+  `id` bigint(20) NOT NULL,
+  `resposta_id` bigint(20) NOT NULL,
+  `numero_questao` int(11) NOT NULL,
+  `resposta` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `resposta_aluno_detalhe`
+--
+
+INSERT INTO `resposta_aluno_detalhe` (`id`, `resposta_id`, `numero_questao`, `resposta`) VALUES
+(66, 13, 1, 'A'),
+(74, 14, 1, 'A'),
+(75, 14, 2, 'b'),
+(79, 15, 1, 'A'),
+(80, 15, 2, 'A'),
+(81, 15, 3, 'D');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `turma`
+--
+
+CREATE TABLE `turma` (
+  `id` bigint(20) NOT NULL,
+  `curso` varchar(255) NOT NULL,
+  `nome` varchar(255) NOT NULL,
+  `periodo` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `turma`
+--
+
+INSERT INTO `turma` (`id`, `curso`, `nome`, `periodo`) VALUES
+(2, 'Sistemas P/ Internet', 'SI-1° \"A\"', '2°'),
+(3, 'Sistemas P/ Internet', 'SI-2° \"A\"', '4°');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `usuario`
+--
+
+CREATE TABLE `usuario` (
+  `id` bigint(20) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `nome` varchar(255) NOT NULL,
+  `perfil` enum('ADMINISTRADOR','ALUNO','PROFESSOR') DEFAULT NULL,
+  `senha` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `usuario`
+--
+
+INSERT INTO `usuario` (`id`, `email`, `nome`, `perfil`, `senha`) VALUES
+(2, 'admin@gmail.com', 'Administrador', 'ADMINISTRADOR', '$2a$10$7PwvYLKbZ271b1wfVSXtSuQOrWhQNPvi9PIOH/p3o8.lxRmQDsiSa'),
+(5, 'aluno@gmail.com', 'Joyce Santos', 'ALUNO', '$2a$10$CbM0em/Cvt3gxvZuBQOw9egCfkdK3S86bc4XqeaVWS3TiFMLTrBUy'),
+(7, 'professor@gmail.com', 'Professor', 'PROFESSOR', '$2a$10$LtO4LqSQ8Hj/8gxuAwuPTOjykm28vqqfrmBv8nNJXc2Aqj39iQVq2'),
+(11, 'admin2@gmail.com', 'Login', 'ADMINISTRADOR', '$2a$10$d79UHQgCViIDSBrXAyNdRupJ3vQaXx.2DfiNF4xzdf21gl6VGNUU6'),
+(12, 'professor2@gmail.com', 'Alex Morgado', 'PROFESSOR', '$2a$10$IspglbfIkeBQKeAjAHotGupG4tyHOHZc9goONcd.Z/ME7iY6EbtdO'),
+(15, 'aluno2@gmail.com', 'Aluno', 'ALUNO', '$2a$10$heX9NMf0pnWI.P4CvP3hwel5qA4EY5AxdLLwezygG6grhg7M5GJjO'),
+(18, 'aluno33@gmail.com', 'Mas', 'ALUNO', '$2a$10$wJ2bmfBuLgBJd8uqyOgQBOMkRZVLvMq1X9v2UialAEb/0NZYMKIAK');
+
+--
+-- Índices para tabelas despejadas
+--
+
+--
+-- Índices de tabela `aluno`
+--
+ALTER TABLE `aluno`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `UKp3aj1urfrd6mo5m2ycjlae8g7` (`usuario_id`),
+  ADD KEY `FKehtgr8rih20h4gomh4dd4sbxu` (`turma_id`);
+
+--
+-- Índices de tabela `disciplina`
+--
+ALTER TABLE `disciplina`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FKtfauxni19jomcrkvbkbhkaa6w` (`professor_id`);
+
+--
+-- Índices de tabela `prova`
+--
+ALTER TABLE `prova`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FKk6aadu7rglwjyy25w9d61jyll` (`disciplina_id`),
+  ADD KEY `FKnc0asx3bnw4mgqri5pwks5a4u` (`turma_id`);
+
+--
+-- Índices de tabela `prova_gabarito`
+--
+ALTER TABLE `prova_gabarito`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FKm32l5cuk74ovwebympesp31my` (`prova_id`);
+
+--
+-- Índices de tabela `resposta_aluno`
+--
+ALTER TABLE `resposta_aluno`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `prova_id` (`prova_id`),
+  ADD KEY `FKn6x5wvdbn5rya6c7vqjp3c249` (`aluno_id`);
+
+--
+-- Índices de tabela `resposta_aluno_detalhe`
+--
+ALTER TABLE `resposta_aluno_detalhe`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `resposta_id` (`resposta_id`);
+
+--
+-- Índices de tabela `turma`
+--
+ALTER TABLE `turma`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `usuario`
+--
+ALTER TABLE `usuario`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT para tabelas despejadas
+--
+
+--
+-- AUTO_INCREMENT de tabela `aluno`
+--
+ALTER TABLE `aluno`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT de tabela `disciplina`
+--
+ALTER TABLE `disciplina`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT de tabela `prova`
+--
+ALTER TABLE `prova`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
+
+--
+-- AUTO_INCREMENT de tabela `prova_gabarito`
+--
+ALTER TABLE `prova_gabarito`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=234;
+
+--
+-- AUTO_INCREMENT de tabela `resposta_aluno`
+--
+ALTER TABLE `resposta_aluno`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+
+--
+-- AUTO_INCREMENT de tabela `resposta_aluno_detalhe`
+--
+ALTER TABLE `resposta_aluno_detalhe`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=82;
+
+--
+-- AUTO_INCREMENT de tabela `turma`
+--
+ALTER TABLE `turma`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT de tabela `usuario`
+--
+ALTER TABLE `usuario`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+
+--
+-- Restrições para tabelas despejadas
+--
+
+--
+-- Restrições para tabelas `aluno`
+--
+ALTER TABLE `aluno`
+  ADD CONSTRAINT `FKehtgr8rih20h4gomh4dd4sbxu` FOREIGN KEY (`turma_id`) REFERENCES `turma` (`id`),
+  ADD CONSTRAINT `FKsgpw6tb2kerkceshx1b10rhkg` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`id`);
+
+--
+-- Restrições para tabelas `disciplina`
+--
+ALTER TABLE `disciplina`
+  ADD CONSTRAINT `FKtfauxni19jomcrkvbkbhkaa6w` FOREIGN KEY (`professor_id`) REFERENCES `usuario` (`id`);
+
+--
+-- Restrições para tabelas `prova`
+--
+ALTER TABLE `prova`
+  ADD CONSTRAINT `FKk6aadu7rglwjyy25w9d61jyll` FOREIGN KEY (`disciplina_id`) REFERENCES `disciplina` (`id`),
+  ADD CONSTRAINT `FKnc0asx3bnw4mgqri5pwks5a4u` FOREIGN KEY (`turma_id`) REFERENCES `turma` (`id`);
+
+--
+-- Restrições para tabelas `prova_gabarito`
+--
+ALTER TABLE `prova_gabarito`
+  ADD CONSTRAINT `FKm32l5cuk74ovwebympesp31my` FOREIGN KEY (`prova_id`) REFERENCES `prova` (`id`);
+
+--
+-- Restrições para tabelas `resposta_aluno`
+--
+ALTER TABLE `resposta_aluno`
+  ADD CONSTRAINT `FKn6x5wvdbn5rya6c7vqjp3c249` FOREIGN KEY (`aluno_id`) REFERENCES `usuario` (`id`),
+  ADD CONSTRAINT `fk_resposta_aluno_aluno` FOREIGN KEY (`aluno_id`) REFERENCES `aluno` (`id`),
+  ADD CONSTRAINT `resposta_aluno_ibfk_2` FOREIGN KEY (`prova_id`) REFERENCES `prova` (`id`);
+
+--
+-- Restrições para tabelas `resposta_aluno_detalhe`
+--
+ALTER TABLE `resposta_aluno_detalhe`
+  ADD CONSTRAINT `resposta_aluno_detalhe_ibfk_1` FOREIGN KEY (`resposta_id`) REFERENCES `resposta_aluno` (`id`);
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
