@@ -6,4 +6,6 @@ import lombok.Data;
 public class TurmaDTO {
     private Long id;
     private String nome;
+    private String periodo;
+    private String curso;
 }

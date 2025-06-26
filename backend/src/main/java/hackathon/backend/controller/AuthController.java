@@ -4,7 +4,6 @@ import hackathon.backend.dto.UsuarioDTO;
 import hackathon.backend.exception.UnauthorizedException;
 import hackathon.backend.model.Usuario;
 import hackathon.backend.repository.UsuarioRepository;
-import hackathon.backend.exception.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +25,7 @@ public class AuthController {
                 .orElseThrow(() -> new UnauthorizedException("Usuário ou senha inválidos"));
 
         if (passwordEncoder.matches(loginDTO.getSenha(), usuario.getSenha())) {
-            return new UsuarioDTO(usuario); // Retorna dados do usuário sem a senha
+            return new UsuarioDTO(usuario);
         } else {
             throw new UnauthorizedException("Usuário ou senha inválidos");
         }

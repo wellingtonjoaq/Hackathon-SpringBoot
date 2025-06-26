@@ -19,7 +19,6 @@ public class Aluno {
     @EqualsAndHashCode.Include
     private Long id;
 
-    // Assumindo que nome e demais dados ficam no Usuario, então só linkamos aqui:
     @NotNull(message = "Informe o usuário associado ao aluno")
     @OneToOne
     @JoinColumn(name = "usuario_id", nullable = false, unique = true)
@@ -28,6 +27,6 @@ public class Aluno {
     @NotNull(message = "Informe a turma")
     @ManyToOne
     @JoinColumn(name = "turma_id", nullable = false)
-    @JsonBackReference  // Para evitar ciclo de serialização com Turma -> Aluno
+    @JsonBackReference
     private Turma turma;
 }

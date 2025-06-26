@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="index :: head">
+  <meta charset="UTF-8">
+</head>
+
+<body>
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+
+  <div class="card shadow rounded p-4" style="min-width: 350px;">
+    <h2 class="mb-4 text-center">Login</h2>
+
+    <form th:action="@{/login}" method="post">
+      <div class="mb-3">
+        <label for="username" class="form-label">Usuário</label>
+        <input type="text" class="form-control" id="username" name="username" required>
+      </div>
+
+      <div class="mb-4">
+        <label for="password" class="form-label">Senha</label>
+        <input type="password" class="form-control" id="password" name="password" required>
+      </div>
+
+      <div class="d-grid">
+        <button type="submit" class="btn btn-dark">
+          Entrar
+        </button>
+      </div>
+    </form>
+  </div>
+
+</div>
+<div th:replace="index :: script"></div>
+
+</body>
+</html>

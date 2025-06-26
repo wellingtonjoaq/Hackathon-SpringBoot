@@ -49,20 +49,48 @@ public class DisciplinaController {
     }
 
     @GetMapping("listar")
-    public String listar(Model model) {
-        var disciplinas = disciplinaService.listarTodos()
+    public String listar(
+            @RequestParam(name = "filtroNome", required = false) String filtroNome,
+            @RequestParam(name = "filtroProfessor", required = false) String filtroProfessor,
+            Model model) {
+
+        var disciplinas = disciplinaService.buscarComFiltros(filtroNome, filtroProfessor)
                 .stream()
-                .map(d -> modelMapper.map(d, DisciplinaDTO.class))
+                .map(disc -> {
+                    DisciplinaDTO dto = modelMapper.map(disc, DisciplinaDTO.class);
+                    if (disc.getProfessor() != null) {
+                        dto.setNomeProfessor(disc.getProfessor().getNome());
+                    } else {
+                        dto.setNomeProfessor("Sem Professor");
+                    }
+                    return dto;
+                })
                 .collect(Collectors.toList());
+
+        var professores = disciplinaService.listarProfessoresUnicos();
+
         model.addAttribute("disciplinas", disciplinas);
+        model.addAttribute("professores", professores);
+
+        model.addAttribute("filtroNome", filtroNome);
+        model.addAttribute("filtroProfessor", filtroProfessor);
+
         return "disciplina/lista";
     }
 
     @GetMapping("editar/{id}")
     public String editar(@PathVariable Long id, Model model) {
-        var disciplina = disciplinaService.buscarPorId(id);
-        model.addAttribute("disciplinaDTO", modelMapper.map(disciplina, DisciplinaDTO.class));
-        return iniciar(modelMapper.map(disciplina, DisciplinaDTO.class), model);
+        var disciplina = disciplinaService.buscarPorId(id)
+                .orElseThrow(() -> new IllegalArgumentException("Disciplina não encontrada com ID: " + id));
+
+        DisciplinaDTO dto = modelMapper.map(disciplina, DisciplinaDTO.class);
+
+        if (disciplina.getProfessor() != null) {
+            dto.setProfessorId(disciplina.getProfessor().getId());
+        }
+
+        model.addAttribute("disciplinaDTO", dto);
+        return iniciar(dto, model);
     }
 
     @GetMapping("remover/{id}")

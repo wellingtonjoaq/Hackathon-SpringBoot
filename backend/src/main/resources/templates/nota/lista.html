@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="~{index :: head}">
+    <meta charset="UTF-8">
+    <title>Consulta de Notas</title>
+</head>
+<body>
+<div class="container mt-5 pt-4">
+    <div th:insert="~{index :: menu}"></div>
+
+    <h2 class="mb-4">Consulta de Notas dos Alunos</h2>
+
+    <form th:action="@{/notas}" method="get" class="row g-3 mb-4">
+        <div class="col-md-3">
+            <label for="filtroTurma" class="form-label">Filtrar por Turma</label>
+            <select id="filtroTurma" name="filtroTurma" class="form-select">
+                <option value="">Todas as turmas</option>
+                <option th:each="turma : ${turmas}"
+                        th:value="${turma}"
+                        th:text="${turma}"
+                        th:selected="${filtroTurma == turma}">
+                </option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label for="filtroDisciplina" class="form-label">Filtrar por Disciplina</label>
+            <select id="filtroDisciplina" name="filtroDisciplina" class="form-select">
+                <option value="">Todas as disciplinas</option>
+                <option th:each="disc : ${disciplinas}"
+                        th:value="${disc}"
+                        th:text="${disc}"
+                        th:selected="${filtroDisciplina == disc}">
+                </option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label for="dataProva" class="form-label">Data da Prova</label>
+            <input type="date" class="form-control" id="dataProva" name="dataProva" th:value="${#temporals.format(dataProva, 'yyyy-MM-dd')}">
+        </div>
+
+        <div class="col-md-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-dark w-100">Filtrar</button>
+        </div>
+    </form>
+
+    <table class="table table-bordered">
+        <thead class="table-dark">
+        <tr>
+            <th>Aluno</th>
+            <th>Turma</th>
+            <th>Disciplina</th>
+            <th>1º Bimestre</th>
+            <th>2º Bimestre</th>
+            <th>Média</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="nota : ${notas}">
+            <td th:text="${nota.nomeAluno}"></td>
+            <td th:text="${nota.nomeTurma}"></td>
+            <td th:text="${nota.nomeDisciplina}"></td>
+            <td th:text="${nota.notaPrimeiroBimestre != null ? #numbers.formatDecimal(nota.notaPrimeiroBimestre, 0, 2) : '-'}"></td>
+            <td th:text="${nota.notaSegundoBimestre != null ? #numbers.formatDecimal(nota.notaSegundoBimestre, 0, 2) : '-'}"></td>
+            <td th:text="${nota.mediaFinal != null ? #numbers.formatDecimal(nota.mediaFinal, 0, 2) : '-'}"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(notas)}">
+            <td colspan="6" class="text-center text-muted">Nenhuma nota encontrada.</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div th:insert="~{index :: script}"></div>
+</body>
+</html>

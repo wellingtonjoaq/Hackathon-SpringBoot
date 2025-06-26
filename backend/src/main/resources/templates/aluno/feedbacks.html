@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="~{index :: head}">
+    <meta charset="UTF-8">
+    <title>Feedbacks das Provas</title>
+</head>
+<body>
+<div class="container mt-5 pt-4">
+    <div th:insert="~{index :: menu}"></div>
+
+    <h2 class="mb-4">Feedbacks das Provas</h2>
+
+    <div th:if="${#lists.isEmpty(feedbacks)}">
+        <p class="text-muted">Nenhum feedback disponível.</p>
+    </div>
+
+    <div th:each="feedback : ${feedbacks}" class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0" th:text="${feedback.tituloProva} + ' - ' + ${feedback.nomeDisciplina} + ' (' + ${feedback.nomeTurma} + ')'"></h5>
+            <small th:text="${feedback.dataProva} + ' - Nota Final: ' + (${feedback.notaFinal != null ? #numbers.formatDecimal(feedback.notaFinal, 0, 2) : '-'})"></small>
+        </div>
+        <div class="card-body">
+            <h6>Questões:</h6>
+            <ul class="list-group">
+                <li th:each="questao : ${feedback.questoes}" class="list-group-item"
+                    th:classappend="${questao.correta} ? 'list-group-item-success' : 'list-group-item-danger'">
+                    <strong>Questão <span th:text="${questao.numeroQuestao}"></span>:</strong>
+                    Sua Resposta: <span th:text="${questao.respostaDadaAluno}"></span> -
+                    Resposta Correta: <span th:text="${questao.respostaCorreta}"></span>
+                    <span th:if="${questao.correta}" class="float-end text-success"> (Correta)</span>
+                    <span th:unless="${questao.correta}" class="float-end text-danger"> (Incorreta)</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div th:insert="~{index :: script}"></div>
+</body>
+</html>

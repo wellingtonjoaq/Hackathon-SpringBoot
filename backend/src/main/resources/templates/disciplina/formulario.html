@@ -1,32 +1,55 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head th:insert="~{index :: head}">
     <meta charset="UTF-8">
-    <title>Formulário de Disciplina</title>
+    <title>Cadastro de Disciplina</title>
 </head>
-<body>
-<div class="container">
-    <div th:insert="~{index :: menu}"></div>
-    <br/>
-    <form>
-        <div class="mb-3">
-            <input hidden="true" name="id" th:value="${disciplinaDTO.id}" type="text">
 
-            <label class="form-label" for="nome">Nome da Disciplina</label>
-            <input class="form-control" id="nome" name="nome" th:value="${disciplinaDTO.nome}" type="text" required>
+<body>
+
+<div th:insert="~{index :: menu}"></div>
+
+<div class="container mt-5 pt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Cadastro de Disciplina</h2>
+        <a class="btn btn-outline-dark" th:href="@{/disciplina/listar}">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+    </div>
+
+    <form th:action="@{/disciplina/salvar}" th:object="${disciplina}" method="post">
+
+        <input type="hidden" name="id" th:value="${disciplinaDTO.id}"/>
+
+        <div class="mb-3">
+            <label for="nome" class="form-label">Nome da Disciplina</label>
+            <input type="text" class="form-control" id="nome" name="nome"
+                   th:value="${disciplinaDTO.nome}" required/>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label" for="professorId">Professor Responsável</label>
-            <select class="form-control" id="professorId" name="professorId" required>
-                <option th:each="prof : ${professores}" th:value="${prof.id}" th:text="${prof.nome}"
-                        th:selected="${prof.id} == ${disciplinaDTO.professorId}"></option>
+        <div class="mb-4">
+            <label for="professorId" class="form-label">Professor Responsável</label>
+            <select class="form-select" id="professorId" name="professorId" required>
+                <option value="">Selecione um professor</option>
+                <option th:each="prof : ${professores}"
+                        th:value="${prof.id}"
+                        th:text="${prof.nome}"
+                        th:selected="${prof.id} == ${disciplinaDTO.professorId}">
+                </option>
             </select>
         </div>
 
-        <button class="btn btn-dark" formmethod="post" th:formaction="@{/disciplina/salvar}" type="submit">Salvar</button>
+        <div class="d-grid">
+            <button type="submit" class="btn btn-dark">
+                Salvar
+            </button>
+        </div>
+
     </form>
 </div>
+
 <div th:insert="~{index :: script}"></div>
+
 </body>
 </html>

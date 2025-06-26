@@ -1,41 +1,114 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head th:insert="~{index :: head}">
     <meta charset="UTF-8">
     <title>Lista de Provas</title>
 </head>
+
 <body>
-<div class="container">
-    <div th:insert="~{index :: menu}"></div>
-    <br/>
-    <table class="table table-hover">
-        <thead>
+
+<div th:insert="~{index :: menu}"></div>
+
+<div class="container mt-5 pt-4">
+
+    <div th:if="${mensagemSucesso}" class="alert alert-success" role="alert">
+        <p th:text="${mensagemSucesso}"></p>
+    </div>
+    <div th:if="${mensagemErro}" class="alert alert-danger" role="alert">
+        <p th:text="${mensagemErro}"></p>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Lista de Provas</h2>
+        <a class="btn btn-outline-dark" th:href="@{/prova}">
+            <i class="bi bi-plus-circle"></i> Adicionar Prova
+        </a>
+    </div>
+
+    <form class="row g-3 mb-4" method="get" th:action="@{/prova/listar}">
+        <div class="col-md-3">
+            <label for="turma" class="form-label">Turma</label>
+            <select class="form-select" id="turma" name="turmaId">
+                <option value="">Todas</option>
+                <option th:each="turma : ${turmas}"
+                        th:value="${turma.id}"
+                        th:text="${turma.nome}"
+                        th:selected="${param.turmaId} == ${turma.id}">
+                </option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label for="disciplina" class="form-label">Disciplina</label>
+            <select class="form-select" id="disciplina" name="disciplinaId">
+                <option value="">Todas</option>
+                <option th:each="disciplina : ${disciplinas}"
+                        th:value="${disciplina.id}"
+                        th:text="${disciplina.nome}"
+                        th:selected="${param.disciplinaId} == ${disciplina.id}">
+                </option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label for="bimestre" class="form-label">Bimestre</label>
+            <select class="form-select" id="bimestre" name="bimestre">
+                <option value="">Todos</option>
+                <option value="PRIMEIRO" th:selected="${param.bimestre} == 'PRIMEIRO'">Primeiro</option>
+                <option value="SEGUNDO" th:selected="${param.bimestre} == 'SEGUNDO'">Segundo</option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label for="data" class="form-label">Data</label>
+            <input type="date" class="form-control" id="data" name="data"
+                   th:value="${param.data}">
+        </div>
+
+        <div class="col-md-1 d-flex align-items-end">
+            <button type="submit" class="btn btn-dark w-100">
+                <i class="bi bi-search"></i>
+            </button>
+        </div>
+    </form>
+
+    <table class="table table-hover table-bordered">
+        <thead class="table-dark">
         <tr>
-            <th>ID</th>
-            <th>Título</th>
-            <th>Turma</th>
-            <th>Disciplina</th>
-            <th>Ações</th>
+            <th class="text-center">ID</th>
+            <th class="text-center">Título</th>
+            <th class="text-center">Turma</th>
+            <th class="text-center">Disciplina</th>
+            <th class="text-center">Bimestre</th> <th class="text-center">Data</th>
+            <th class="text-center">Ações</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="prova : ${provas}">
-            <td th:text="${prova.id}">1</td>
-            <td th:text="${prova.titulo}">Prova 1</td>
-            <td th:text="${prova.nomeTurma}">Turma A</td>
-            <td th:text="${prova.nomeDisciplina}">Matemática</td>
-            <td>
-                <a th:href="@{'/prova/editar/' + ${prova.id}}" class="btn btn-outline-dark" title="Editar">
+            <td class="text-center" th:text="${prova.id}">1</td>
+            <td class="text-center" th:text="${prova.titulo}">Prova 1</td>
+            <td class="text-center" th:text="${prova.nomeTurma}">Turma A</td>
+            <td class="text-center" th:text="${prova.nomeDisciplina}">Matemática</td>
+            <td class="text-center" th:text="${prova.bimestre == 'PRIMEIRO' ? 'Primeiro' : 'Segundo'}">Primeiro</td> <td class="text-center" th:text="${#temporals.format(prova.data, 'dd/MM/yyyy')}">01/06/2025</td>
+            <td class="text-center">
+                <a th:href="@{'/prova/' + ${prova.id}}" class="btn btn-outline-dark" title="Editar">
                     <i class="bi bi-pencil-square"></i>
                 </a>
-                <a th:href="@{'/prova/remover/' + ${prova.id}}" class="btn btn-outline-dark" title="Remover">
+                <a th:href="@{'/prova/remover/' + ${prova.id}}" class="btn btn-outline-dark" title="Remover"
+                   onclick="return confirm('Tem certeza que deseja remover essa prova?');">
                     <i class="bi bi-dash-square"></i>
                 </a>
             </td>
         </tr>
+        <tr th:if="${provas == null or #lists.isEmpty(provas)}">
+            <td colspan="7" class="text-center text-muted"> Nenhuma prova cadastrada no sistema.
+            </td>
+        </tr>
         </tbody>
     </table>
+
 </div>
+
 <div th:insert="~{index :: script}"></div>
 </body>
 </html>

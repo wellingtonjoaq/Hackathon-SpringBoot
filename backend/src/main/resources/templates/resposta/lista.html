@@ -1,36 +1,87 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head th:insert="~{index :: head}">
     <meta charset="UTF-8">
-    <title>Lista de Respostas</title>
+    <title>Lista de Respostas de Alunos</title>
 </head>
 <body>
-<div class="container">
+<div class="container mt-5 pt-4">
     <div th:insert="~{index :: menu}"></div>
     <br/>
-    <table class="table table-hover">
-        <thead>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Respostas de Alunos</h2>
+        <a class="btn btn-outline-dark" th:href="@{/resposta}">
+            <i class="bi bi-plus-circle"></i> Nova Resposta
+        </a>
+    </div>
+
+    <form class="row g-3 mb-4" method="get" th:action="@{/resposta/listar}">
+        <div class="col-md-4">
+            <label for="turmaId" class="form-label">Turma</label>
+            <select class="form-select" id="turmaId" name="turmaId">
+                <option value="">Todas</option>
+                <option th:each="turma : ${turmas}"
+                        th:value="${turma.id}"
+                        th:text="${turma.nome}"
+                        th:selected="${param.turmaId} == ${turma.id}">
+                </option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label for="disciplinaId" class="form-label">Disciplina</label>
+            <select class="form-select" id="disciplinaId" name="disciplinaId">
+                <option value="">Todas</option>
+                <option th:each="disciplina : ${disciplinas}"
+                        th:value="${disciplina.id}"
+                        th:text="${disciplina.nome}"
+                        th:selected="${param.disciplinaId} == ${disciplina.id}">
+                </option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label for="dataProva" class="form-label">Data da Prova</label>
+            <input type="date" class="form-control" id="dataProva" name="dataProva" th:value="${param.dataProva}">
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <button type="submit" class="btn btn-dark w-100">
+                <i class="bi bi-search"></i> Filtrar
+            </button>
+        </div>
+    </form>
+
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
         <tr>
             <th>ID</th>
             <th>Aluno</th>
             <th>Prova</th>
-            <th>Resposta</th>
-            <th>Correta</th>
+            <th>Nota</th>
+            <th>Data da Prova</th> <th>Ações</th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="resp : ${respostas}">
-            <td th:text="${resp.id}">1</td>
-            <td th:text="${resp.nomeAluno}">João</td>
-            <td th:text="${resp.nomeProva}">Prova 1</td>
-            <td th:text="${resp.resposta}">A</td>
-            <td>
-                <span th:text="${resp.correta} ? 'Sim' : 'Não'"></span>
-            </td>
+        <tr th:each="resposta : ${respostas}">
+            <td th:text="${resposta.id}"></td>
+            <td th:text="${resposta.alunoNome}"></td>
+            <td th:text="${resposta.provaTitulo}"></td>
+            <td th:text="${#numbers.formatDecimal(resposta.nota, 0, 2)}"></td>
+            <td th:text="${#temporals.format(resposta.provaData, 'dd/MM/yyyy')}"></td> <td>
+            <a class="btn btn-sm btn-primary" th:href="@{/resposta/{id}(id=${resposta.id})}" title="Editar">
+                <i class="bi bi-pencil"></i>
+            </a>
+            <a class="btn btn-sm btn-danger" th:href="@{/resposta/remover/{id}(id=${resposta.id})}"
+               onclick="return confirm('Tem certeza que deseja remover esta resposta?');" title="Remover">
+                <i class="bi bi-trash"></i>
+            </a>
+        </td>
         </tr>
+        <tr th:if="${respostas == null or #lists.isEmpty(respostas)}">
+            <td colspan="6" class="text-center text-muted">Nenhuma resposta de aluno encontrada.</td> </tr>
         </tbody>
     </table>
 </div>
+
 <div th:insert="~{index :: script}"></div>
 </body>
 </html>
